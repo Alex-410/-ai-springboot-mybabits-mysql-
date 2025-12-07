@@ -393,6 +393,8 @@
             // 创建预览元素
             const previewItem = document.createElement('div');
             previewItem.className = 'image-preview-item';
+            // 保存原始文件引用
+            previewItem.file = file;
             
             // 创建图片元素
             const img = document.createElement('img');
@@ -437,10 +439,10 @@
             
             // 收集所有图片文件
             imageItems.forEach(item => {
-                const img = item.querySelector('img');
-                // 这里需要从原始文件中获取，而不是从预览中获取
-                // 在实际实现中，我们需要在创建预览时保存原始文件引用
-                // 为了简化，我们假设这里会正确获取到文件
+                // 从预览项中获取原始文件引用
+                if (item.file) {
+                    files.push(item.file);
+                }
             });
             
             if (files.length === 0) {
@@ -457,7 +459,7 @@
                 // 创建FormData对象
                 const formData = new FormData();
                 files.forEach((file, index) => {
-                    formData.append('images', file);
+                    formData.append('files', file);
                 });
                 
                 // 上传图片
@@ -475,7 +477,7 @@
                 // 隐藏进度条
                 uploadProgress.style.display = 'none';
                 
-                return result.imageUrls || [];
+                return result.urls || [];
             } catch (error) {
                 console.error('图片上传失败:', error);
                 // 隐藏进度条

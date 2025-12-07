@@ -238,6 +238,52 @@
             color: rgba(255, 255, 255, 0.9);
             margin-bottom: 0.5rem;
         }
+        .post-images {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .post-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+            aspect-ratio: 1/1;
+        }
+
+        .gif-image {
+            /* 确保 GIF 图片正确显示动画 */
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+        }
+        
+        /* 单张图片居中显示 */
+        .post-images.single-image {
+            display: flex;
+            justify-content: center;
+        }
+        
+        .post-images.single-image .post-image {
+            max-width: 80%;
+            aspect-ratio: auto;
+        }
+        
+        /* 两张图片并排显示 */
+        .post-images.two-images {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-gap: 10px;
+        }
+        
+        /* 四张图片网格显示 */
+        .post-images.four-images {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            grid-gap: 10px;
+        }
         .comments-section {
             margin-top: 1rem;
             padding-top: 1rem;
@@ -642,6 +688,29 @@
                     const createdAt = new Date(post.createdAt);
                     const formattedDate = `${createdAt.getFullYear()}-${String(createdAt.getMonth() + 1).padStart(2, '0')}-${String(createdAt.getDate()).padStart(2, '0')}`;
                     
+                    // 创建图片显示HTML
+                    let imagesHTML = '';
+                    if (post.imageUrls && Array.isArray(post.imageUrls) && post.imageUrls.length > 0) {
+                        // 根据图片数量添加不同的CSS类
+                        let imagesClass = 'post-images';
+                        if (post.imageUrls.length === 1) {
+                            imagesClass += ' single-image';
+                        } else if (post.imageUrls.length === 2) {
+                            imagesClass += ' two-images';
+                        } else if (post.imageUrls.length === 4) {
+                            imagesClass += ' four-images';
+                        }
+                        
+                        imagesHTML = `<div class="${imagesClass}">`;
+                        post.imageUrls.forEach(url => {
+                            // 对于 GIF 图片，添加特定的样式类以保持动画效果
+                            const isGif = url.toLowerCase().endsWith('.gif');
+                            const imgClass = isGif ? 'post-image gif-image' : 'post-image';
+                            imagesHTML += `<img src="${url}" alt="帖子图片" class="${imgClass}">`;
+                        });
+                        imagesHTML += '</div>';
+                    }
+
                     const postElement = document.createElement('div');
                     postElement.className = 'post';
                     postElement.innerHTML = `
@@ -666,6 +735,7 @@
                         </div>
                         <h3 class="post-title">${post.title}</h3>
                         <p class="post-content">${post.content}</p>
+                        ${imagesHTML}
                         <div class="comments-section" id="comments-${post.id}">
                             <h4>评论</h4>
                             <div class="comments-list" id="comments-list-${post.id}"></div>
@@ -767,12 +837,36 @@
                 }
                 
                 posts.forEach(post => {
+                    // 创建图片显示HTML
+                    let imagesHTML = '';
+                    if (post.imageUrls && Array.isArray(post.imageUrls) && post.imageUrls.length > 0) {
+                        // 根据图片数量添加不同的CSS类
+                        let imagesClass = 'post-images';
+                        if (post.imageUrls.length === 1) {
+                            imagesClass += ' single-image';
+                        } else if (post.imageUrls.length === 2) {
+                            imagesClass += ' two-images';
+                        } else if (post.imageUrls.length === 4) {
+                            imagesClass += ' four-images';
+                        }
+                        
+                        imagesHTML = `<div class="${imagesClass}">`;
+                        post.imageUrls.forEach(url => {
+                            // 对于 GIF 图片，添加特定的样式类以保持动画效果
+                            const isGif = url.toLowerCase().endsWith('.gif');
+                            const imgClass = isGif ? 'post-image gif-image' : 'post-image';
+                            imagesHTML += `<img src="${url}" alt="帖子图片" class="${imgClass}">`;
+                        });
+                        imagesHTML += '</div>';
+                    }
+
                     const postElement = document.createElement('div');
                     postElement.className = 'post';
                     postElement.innerHTML = `
                         <h3 class="post-title">${post.title}</h3>
                         <p class="post-content">${post.content}</p>
                         <small>用户ID: ${post.userId} | 分类ID: ${post.categoryId} | 发布时间: ${post.createdAt}</small>
+                        ${imagesHTML}
                         <div class="comments-section" id="comments-${post.id}">
                             <h4>评论</h4>
                             <div class="comments-list" id="comments-list-${post.id}"></div>

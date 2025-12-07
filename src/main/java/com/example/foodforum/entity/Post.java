@@ -74,13 +74,11 @@ public class Post {
     }
 
     // 获取图片URL列表（用于前端传输）
-    @JsonIgnore
     public List<String> getImageUrls() {
         return imageUrls;
     }
 
     // 设置图片URL列表（用于前端传输）
-    @JsonIgnore
     public void setImageUrls(List<String> imageUrls) {
         this.imageUrls = imageUrls;
     }
