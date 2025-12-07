@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Test</title>
+</head>
+<body>
+    <h1>Simple Test</h1>
+    <button onclick="login()">Login</button>
+    <button onclick="updateProfile()">Update Profile</button>
+    <div id="result"></div>
+
+    <script>
+        let sessionId = '';
+
+        async function login() {
+            try {
+                const response = await fetch('http://localhost:8080/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: 'admin',
+                        password: '1234'
+                    }),
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+                document.getElementById('result').innerHTML = '<p>Login Response: ' + JSON.stringify(data) + '</p>';
+                
+                // 获取sessionId
+                const cookies = response.headers.get('set-cookie');
+                console.log('Cookies:', cookies);
+            } catch (error) {
+                document.getElementById('result').innerHTML = '<p>Login Error: ' + error.message + '</p>';
+            }
+        }
+
+        async function updateProfile() {
+            try {
+                const response = await fetch('http://localhost:8080/api/users/profile', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        nickname: 'Updated Admin',
+                        email: 'updated-admin@example.com'
+                    }),
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+                document.getElementById('result').innerHTML += '<p>Update Profile Response: ' + JSON.stringify(data) + '</p>';
+            } catch (error) {
+                document.getElementById('result').innerHTML += '<p>Update Profile Error: ' + error.message + '</p>';
+            }
+        }
+    </script>
+</body>
+</html>

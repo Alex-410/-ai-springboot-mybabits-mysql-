@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人资料 - 美食论坛</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+            transition: all 0.3s ease;
+        }
+        
+        .container:hover {
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            transform: translateY(-5px);
+        }
+        h1 {
+            color: white;
+            text-align: center;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            box-sizing: border-box;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            color: white;
+        }
+        
+        input::placeholder, textarea::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.3);
+        }
+        button {
+            background: rgba(255, 107, 107, 0.8);
+            color: white;
+            padding: 12px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            font-weight: bold;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        button:hover {
+            background: rgba(255, 107, 107, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .btn-secondary {
+            background: rgba(108, 117, 125, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .btn-secondary:hover {
+            background: rgba(108, 117, 125, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .btn-danger {
+            background: rgba(255, 107, 107, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .btn-danger:hover {
+            background: rgba(255, 107, 107, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .avatar-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid rgba(255, 255, 255, 0.5);
+            margin-bottom: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        .message {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        .error {
+            background: rgba(248, 215, 218, 0.9);
+            color: #721c24;
+            border: 1px solid rgba(245, 198, 203, 0.5);
+        }
+        .success {
+            background: rgba(212, 237, 218, 0.9);
+            color: #155724;
+            border: 1px solid rgba(195, 230, 203, 0.5);
+        }
+        .hidden {
+            display: none;
+        }
+        .nav-links {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+            font-weight: bold;
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.3);
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>美食论坛</h1>
+            <div class="user-info">
+                <span id="welcomeMessage">欢迎访问美食论坛</span>
+                <button id="logoutButton" class="btn-secondary hidden"><a href="/login.html">注销</a></button>
+            </div>
+        </div>
+        
+        <div class="nav-links">
+            <a href="index.html">首页</a>
+            <a href="profile.html">个人资料</a>
+        </div>
+        
+        <div id="authSection">
+            <p>请先<a href="login.html">登录</a>以查看和编辑个人资料。</p>
+        </div>
+        
+        <div id="profileSection" class="hidden">
+            <h2>个人资料</h2>
+            
+            <div id="message" class="message hidden"></div>
+            
+            <div class="avatar-container">
+                <img id="avatarImg" class="avatar" src="/images/default-avatar.png" alt="头像">
+                <br>
+                <button id="changeAvatarBtn">更换头像</button>
+                <input type="file" id="avatarInput" accept="image/*" class="hidden">
+            </div>
+            
+            <form id="profileForm">
+                <input type="hidden" id="userId">
+                <div class="form-group">
+                    <label for="username">用户名:</label>
+                    <input type="text" id="username" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="email">邮箱:</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="nickname">昵称:</label>
+                    <input type="text" id="nickname" required>
+                </div>
+                <div class="form-group">
+                    <label for="gender">性别:</label>
+                    <select id="gender">
+                        <option value="0">未知</option>
+                        <option value="1">男</option>
+                        <option value="2">女</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="birthday">生日:</label>
+                    <input type="date" id="birthday">
+                </div>
+                <div class="form-group">
+                    <label for="phone">手机号:</label>
+                    <input type="tel" id="phone">
+                </div>
+                <div class="form-group">
+                    <label for="signature">个性签名:</label>
+                    <textarea id="signature" rows="3"></textarea>
+                </div>
+                <button type="submit">保存资料</button>
+                <button type="button" id="cancelBtn" class="btn-secondary">取消</button>
+            </form>
+            
+            <!-- 最近的帖子模块 -->
+            <div id="recentPostsSection" class="hidden">
+                <h2>最近的帖子</h2>
+                <div id="recentPostsList">
+                    <div class="no-data">加载中...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <style>
+        .posts-list {
+            display: grid;
+            gap: 1rem;
+        }
+        .post {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1.5px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+        .post-title {
+            margin: 0 0 0.5rem 0;
+            color: white;
+            font-size: 1.1rem;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        .post-content {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 0.5rem;
+        }
+        .post-meta {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .post-actions {
+            margin-top: 0.5rem;
+        }
+        .post-actions button {
+            padding: 5px 10px;
+            font-size: 0.9rem;
+            margin-right: 5px;
+        }
+        .no-data {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 1rem;
+        }
+    </style>
+
+    <script>
+        // 页面加载时检查登录状态并获取用户信息
+        window.onload = function() {
+            checkLoginStatus();
+        };
+        
+        // 检查登录状态
+        function checkLoginStatus() {
+            fetch('/api/auth/status')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Received non-JSON response');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.loggedIn) {
+                    // 用户已登录
+                    document.getElementById('welcomeMessage').textContent = `欢迎, ${data.user.username}!`;
+                    document.getElementById('userId').value = data.user.id;
+                    document.getElementById('authSection').classList.add('hidden');
+                    document.getElementById('profileSection').classList.remove('hidden');
+                    document.getElementById('logoutButton').classList.remove('hidden');
+                    
+                    // 填充用户信息
+                    fillUserInfo(data.user);
+                } else {
+                    // 用户未登录
+                    document.getElementById('welcomeMessage').textContent = '欢迎访问美食论坛';
+                    document.getElementById('authSection').classList.remove('hidden');
+                    document.getElementById('profileSection').classList.add('hidden');
+                    document.getElementById('recentPostsSection').classList.add('hidden');
+                    document.getElementById('logoutButton').classList.add('hidden');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // 如果检查登录状态失败，默认认为用户未登录
+                document.getElementById('welcomeMessage').textContent = '欢迎访问美食论坛';
+                document.getElementById('authSection').classList.remove('hidden');
+                document.getElementById('profileSection').classList.add('hidden');
+                document.getElementById('recentPostsSection').classList.add('hidden');
+                document.getElementById('logoutButton').classList.add('hidden');
+            });
+        }
+        
+        // 填充用户信息
+        function fillUserInfo(user) {
+            document.getElementById('userId').value = user.id || '';
+            document.getElementById('username').value = user.username || '';
+            document.getElementById('email').value = user.email || '';
+            document.getElementById('nickname').value = user.nickname || '';
+            document.getElementById('gender').value = user.gender || '0';
+            document.getElementById('birthday').value = user.birthday || '';
+            document.getElementById('phone').value = user.phone || '';
+            document.getElementById('signature').value = user.signature || '';
+            
+            // 设置头像
+            if (user.avatar) {
+                document.getElementById('avatarImg').src = user.avatar;
+            }
+            
+            // 显示最近的帖子模块
+            document.getElementById('recentPostsSection').classList.remove('hidden');
+            
+            // 加载用户的最近帖子
+            loadUserRecentPosts(user.id);
+        }
+        
+        // 加载用户的最近帖子
+        function loadUserRecentPosts(userId) {
+            fetch(`/api/posts/user/${userId}`)
+            .then(response => response.json())
+            .then(posts => {
+                const postsContainer = document.getElementById('recentPostsList');
+                
+                if (posts.length === 0) {
+                    postsContainer.innerHTML = '<div class="no-data">您还没有发布任何帖子</div>';
+                    return;
+                }
+                
+                postsContainer.innerHTML = '';
+                posts.forEach(post => {
+                    const postElement = document.createElement('div');
+                    postElement.className = 'post';
+                    postElement.innerHTML = `
+                        <h3 class="post-title">${post.title}</h3>
+                        <p class="post-content">${post.content.substring(0, 100)}${post.content.length > 100 ? '...' : ''}</p>
+                        <div class="post-meta">
+                            <span>发布于 ${new Date(post.createdAt).toLocaleString()}</span>
+                            <div class="post-actions">
+                                <button onclick="editPost(${post.id})" class="btn-secondary">编辑</button>
+                                <button onclick="deletePost(${post.id})" class="btn-danger">删除</button>
+                            </div>
+                        </div>
+                    `;
+                    postsContainer.appendChild(postElement);
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('recentPostsList').innerHTML = '<div class="no-data">无法加载您的帖子</div>';
+            });
+        }
+        
+        // 编辑帖子
+        function editPost(postId) {
+            // 跳转到编辑帖子页面（这里可以是post.html加上postId参数）
+            window.location.href = `post.html?postId=${postId}`;
+        }
+        
+        // 删除帖子
+        function deletePost(postId) {
+            if (confirm('确定要删除这篇帖子吗？此操作不可恢复。')) {
+                fetch(`/api/posts/${postId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.text())
+                .then(data => {
+                    if (data === '帖子删除成功') {
+                        showMessage('帖子删除成功', 'success');
+                        // 重新加载帖子列表
+                        const userId = document.getElementById('userId').value;
+                        if (userId) {
+                            loadUserRecentPosts(userId);
+                        }
+                    } else {
+                        showMessage('帖子删除失败: ' + data, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showMessage('帖子删除失败，请稍后重试', 'error');
+                });
+            }
+        }
+        
+        // 注销按钮事件
+        document.getElementById('logoutButton').addEventListener('click', function() {
+            fetch('/api/auth/logout', {
+                method: 'POST',
+                credentials: 'same-origin'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Received non-JSON response');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // 注销成功，跳转到登录页面
+                    window.location.href = '/login.html';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+        
+        // 更换头像按钮事件
+    document.getElementById('changeAvatarBtn').addEventListener('click', function() {
+        document.getElementById('avatarInput').click();
+    });
+    
+    // 头像文件选择事件
+    document.getElementById('avatarInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            // 创建FormData对象
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            // 上传头像到服务器
+            fetch('/api/auth/upload-avatar', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Received non-JSON response');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // 更新头像显示
+                    document.getElementById('avatarImg').src = data.avatarUrl;
+                    showMessage('头像上传成功', 'success');
+                } else {
+                    showMessage('头像上传失败: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('头像上传失败，请稍后重试', 'error');
+            });
+        }
+    });
+        
+        // 表单提交事件
+        document.getElementById('profileForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const user = {
+                id: document.getElementById('userId').value,
+                username: document.getElementById('username').value,
+                email: document.getElementById('email').value,
+                nickname: document.getElementById('nickname').value,
+                gender: parseInt(document.getElementById('gender').value),
+                birthday: document.getElementById('birthday').value || null,
+                phone: document.getElementById('phone').value,
+                signature: document.getElementById('signature').value,
+                avatar: document.getElementById('avatarImg').src  // 添加头像URL
+            };
+            
+            fetch(`/api/users/profile`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'same-origin',  // 添加这一行以确保携带凭证
+                body: JSON.stringify(user)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Received non-JSON response');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    showMessage('个人资料保存成功', 'success');
+                } else {
+                    showMessage('个人资料保存失败: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('个人资料保存失败，请稍后重试', 'error');
+            });
+        });
+        
+        // 取消按钮事件
+        document.getElementById('cancelBtn').addEventListener('click', function() {
+            if (confirm('确定要取消编辑并返回首页吗？未保存的内容将会丢失。')) {
+                window.location.href = 'index.html';
+            }
+        });
+        
+        // 显示消息
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = 'message ' + type;
+            messageDiv.classList.remove('hidden');
+        }
+        
+        // 隐藏消息
+        function hideMessage() {
+            const messageDiv = document.getElementById('message');
+            messageDiv.classList.add('hidden');
+        }
+    </script>
+    <script src="https://files.cnblogs.com/files/quaint/sakuraPlus.js"></script>
+</body>
+</html>

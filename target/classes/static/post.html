@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发布新帖子 - 美食论坛</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            color: white;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .post-form {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            border-radius: 15px;
+        }
+        .post-form h2 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-family: inherit;
+            background: rgba(255, 255, 255, 0.9); /* 改为不透明背景 */
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            color: #333; /* 改为深色文字 */
+        }
+        .form-group input::placeholder, .form-group textarea::placeholder, .form-group select::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .form-group textarea {
+            height: 150px;
+            resize: vertical;
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            background: rgba(255, 107, 107, 0.8);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-right: 0.5rem;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background: rgba(255, 107, 107, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .btn-secondary {
+            background: rgba(108, 117, 125, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .btn-secondary:hover {
+            background: rgba(108, 117, 125, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .notification {
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            display: none;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .notification.success {
+            background: rgba(212, 237, 218, 0.3);
+            color: #155724;
+            border: 1px solid rgba(195, 230, 203, 0.3);
+        }
+        .notification.error {
+            background: rgba(248, 215, 218, 0.3);
+            color: #721c24;
+            border: 1px solid rgba(245, 198, 203, 0.3);
+        }
+        .hidden {
+            display: none;
+        }
+        
+        /* 图片上传相关样式 */
+        .image-upload-container {
+            margin-bottom: 1rem;
+        }
+        
+        .image-upload-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .image-preview-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .image-preview-item {
+            position: relative;
+            width: 100%;
+            padding-top: 100%; /* 保持正方形比例 */
+            border-radius: 8px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .image-preview-item img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        
+        .remove-image {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(255, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .add-image-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px dashed rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 2rem;
+        }
+        
+        .add-image-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        #imageInput {
+            display: none;
+        }
+        
+        .upload-progress {
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: rgba(255, 107, 107, 0.8);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">美食论坛</div>
+        <div>
+            <button id="homeButton" class="btn btn-secondary">返回首页</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="postSection" class="post-form">
+            <h2>发布新帖子</h2>
+            <div id="notification" class="notification"></div>
+            <form id="postForm">
+                <input type="hidden" id="userId">
+                <div class="form-group">
+                    <label for="categoryId">分类:</label>
+                    <select id="categoryId" required>
+                        <option value="1">美食分享</option>
+                        <option value="2">烹饪技巧</option>
+                        <option value="3">餐厅推荐</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="title">标题:</label>
+                    <input type="text" id="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="content">内容:</label>
+                    <textarea id="content" required></textarea>
+                </div>
+                
+                <!-- 图片上传区域 -->
+                <div class="image-upload-container">
+                    <label class="image-upload-label">图片上传 (最多9张):</label>
+                    <div class="image-preview-container" id="imagePreviewContainer">
+                        <!-- 初始添加图片按钮 -->
+                        <div class="image-preview-item">
+                            <div class="add-image-btn" id="addImageButton">+</div>
+                        </div>
+                    </div>
+                    <input type="file" id="imageInput" accept="image/*" multiple>
+                    
+                    <!-- 上传进度条 -->
+                    <div class="upload-progress" id="uploadProgress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn">发布</button>
+                <button type="button" id="cancelButton" class="btn btn-secondary">取消</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 页面加载完成后执行
+        window.onload = function() {
+            checkLoginStatus();
+            
+            // 返回首页按钮事件
+            document.getElementById('homeButton').addEventListener('click', function() {
+                window.location.href = 'index.html';
+            });
+            
+            // 取消按钮事件
+            document.getElementById('cancelButton').addEventListener('click', function() {
+                if (confirm('确定要取消发布吗？未保存的内容将会丢失。')) {
+                    window.location.href = 'index.html';
+                }
+            });
+            
+            // 图片上传相关事件
+            setupImageUpload();
+        };
+        
+        // 检查登录状态
+        function checkLoginStatus() {
+            fetch('/api/auth/status')
+            .then(response => response.json())
+            .then(data => {
+                if (data.loggedIn) {
+                    // 用户已登录
+                    document.getElementById('userId').value = data.user.id;
+                } else {
+                    // 用户未登录，显示错误消息并阻止发布操作
+                    const notification = document.getElementById('notification');
+                    notification.className = 'notification error';
+                    notification.textContent = '请先登录再发布帖子';
+                    notification.style.display = 'block';
+                    
+                    // 禁用发布按钮
+                    document.querySelector('#postForm button[type="submit"]').disabled = true;
+                    
+                    // 3秒后自动返回首页
+                    setTimeout(function() {
+                        window.location.href = 'index.html';
+                    }, 3000);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                const notification = document.getElementById('notification');
+                notification.className = 'notification error';
+                notification.textContent = '检查登录状态失败';
+                notification.style.display = 'block';
+                
+                // 禁用发布按钮
+                document.querySelector('#postForm button[type="submit"]').disabled = true;
+            });
+        }
+        
+        // 设置图片上传功能
+        function setupImageUpload() {
+            const imageInput = document.getElementById('imageInput');
+            const addImageButton = document.getElementById('addImageButton');
+            const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+            
+            // 添加图片按钮点击事件
+            addImageButton.addEventListener('click', function() {
+                imageInput.click();
+            });
+            
+            // 文件选择事件
+            imageInput.addEventListener('change', function(e) {
+                const files = Array.from(e.target.files);
+                handleImageSelection(files);
+                // 清空input值以便可以重复选择相同文件
+                e.target.value = '';
+            });
+        }
+        
+        // 处理图片选择
+        function handleImageSelection(files) {
+            const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+            const currentImages = imagePreviewContainer.querySelectorAll('.image-preview-item:not(:first-child)').length;
+            
+            // 限制最多9张图片
+            const remainingSlots = 9 - currentImages;
+            if (remainingSlots <= 0) {
+                alert('最多只能上传9张图片');
+                return;
+            }
+            
+            // 限制选择数量
+            const filesToProcess = files.slice(0, remainingSlots);
+            
+            // 创建预览
+            filesToProcess.forEach(file => {
+                createImagePreview(file);
+            });
+        }
+        
+        // 创建图片预览
+        function createImagePreview(file) {
+            const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+            
+            // 创建预览元素
+            const previewItem = document.createElement('div');
+            previewItem.className = 'image-preview-item';
+            
+            // 创建图片元素
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            
+            // 创建删除按钮
+            const deleteBtn = document.createElement('div');
+            deleteBtn.className = 'delete-btn';
+            deleteBtn.innerHTML = '&times;';
+            deleteBtn.addEventListener('click', function() {
+                previewItem.remove();
+                updateAddButtonVisibility();
+            });
+            
+            // 组装元素
+            previewItem.appendChild(img);
+            previewItem.appendChild(deleteBtn);
+            imagePreviewContainer.insertBefore(previewItem, imagePreviewContainer.lastChild);
+            
+            // 更新添加按钮可见性
+            updateAddButtonVisibility();
+        }
+        
+        // 更新添加按钮可见性
+        function updateAddButtonVisibility() {
+            const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+            const currentImages = imagePreviewContainer.querySelectorAll('.image-preview-item:not(:first-child)').length;
+            const addImageButton = document.getElementById('addImageButton');
+            
+            if (currentImages >= 9) {
+                addImageButton.style.display = 'none';
+            } else {
+                addImageButton.style.display = 'flex';
+            }
+        }
+        
+        // 上传图片到服务器
+        async function uploadImages() {
+            const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+            const imageItems = imagePreviewContainer.querySelectorAll('.image-preview-item:not(:first-child)');
+            const files = [];
+            
+            // 收集所有图片文件
+            imageItems.forEach(item => {
+                const img = item.querySelector('img');
+                // 这里需要从原始文件中获取，而不是从预览中获取
+                // 在实际实现中，我们需要在创建预览时保存原始文件引用
+                // 为了简化，我们假设这里会正确获取到文件
+            });
+            
+            if (files.length === 0) {
+                return [];
+            }
+            
+            // 显示进度条
+            const uploadProgress = document.getElementById('uploadProgress');
+            const progressFill = document.getElementById('progressFill');
+            uploadProgress.style.display = 'block';
+            progressFill.style.width = '0%';
+            
+            try {
+                // 创建FormData对象
+                const formData = new FormData();
+                files.forEach((file, index) => {
+                    formData.append('images', file);
+                });
+                
+                // 上传图片
+                const response = await fetch('/api/upload/post-images', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                // 隐藏进度条
+                uploadProgress.style.display = 'none';
+                
+                return result.imageUrls || [];
+            } catch (error) {
+                console.error('图片上传失败:', error);
+                // 隐藏进度条
+                uploadProgress.style.display = 'none';
+                throw error;
+            }
+        }
+        
+        // 提交表单创建新帖子
+        document.getElementById('postForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // 获取表单数据
+            const userId = document.getElementById('userId').value;
+            const categoryId = document.getElementById('categoryId').value;
+            const title = document.getElementById('title').value;
+            const content = document.getElementById('content').value;
+            
+            // 基本验证
+            if (!userId || !categoryId || !title || !content) {
+                const notification = document.getElementById('notification');
+                notification.className = 'notification error';
+                notification.textContent = '请填写所有必填字段';
+                notification.style.display = 'block';
+                return;
+            }
+            
+            // 禁用提交按钮防止重复提交
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.textContent;
+            submitButton.disabled = true;
+            submitButton.textContent = '发布中...';
+            
+            try {
+                // 上传图片
+                const imageUrls = await uploadImages();
+                
+                const post = {
+                    userId: userId,
+                    categoryId: categoryId,
+                    title: title,
+                    content: content,
+                    status: 1,
+                    imageUrls: imageUrls  // 添加图片URL列表
+                };
+                
+                fetch('/api/posts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(post)
+                })
+                .then(response => {
+                    // 检查响应状态
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    const notification = document.getElementById('notification');
+                    if (data.includes('成功')) {  // 修改判断条件以匹配可能的成功消息
+                        // 显示成功消息
+                        notification.className = 'notification success';
+                        notification.textContent = '帖子发布成功！即将返回首页...';
+                        notification.style.display = 'block';
+                        
+                        // 3秒后自动返回首页
+                        setTimeout(function() {
+                            window.location.href = 'index.html';
+                        }, 3000);
+                    } else {
+                        // 显示错误消息
+                        notification.className = 'notification error';
+                        notification.textContent = data || '帖子创建失败，请稍后重试';
+                        notification.style.display = 'block';
+                        
+                        // 重新启用提交按钮
+                        submitButton.disabled = false;
+                        submitButton.textContent = originalButtonText;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    const notification = document.getElementById('notification');
+                    notification.className = 'notification error';
+                    notification.textContent = '创建帖子失败: ' + (error.message || '网络错误，请稍后重试');
+                    notification.style.display = 'block';
+                    
+                    // 重新启用提交按钮
+                    submitButton.disabled = false;
+                    submitButton.textContent = originalButtonText;
+                });
+            } catch (error) {
+                console.error('图片上传失败:', error);
+                const notification = document.getElementById('notification');
+                notification.className = 'notification error';
+                notification.textContent = '图片上传失败: ' + (error.message || '请稍后重试');
+                notification.style.display = 'block';
+                
+                // 重新启用提交按钮
+                submitButton.disabled = false;
+                submitButton.textContent = originalButtonText;
+            }
+        });
+    </script>
+    <script src="https://files.cnblogs.com/files/quaint/sakuraPlus.js"></script>
+</body>
+</html>

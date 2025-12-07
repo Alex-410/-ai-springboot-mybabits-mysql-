@@ -1,0 +1,17 @@
+com\example\foodforum\config\SecurityConfig.class
+com\example\foodforum\controller\UserController.class
+com\example\foodforum\mapper\CommentMapper.class
+com\example\foodforum\controller\TestController.class
+com\example\foodforum\mapper\UserMapper.class
+com\example\foodforum\controller\UploadController.class
+com\example\foodforum\service\PostService.class
+com\example\foodforum\mapper\PostMapper.class
+com\example\foodforum\controller\PostController.class
+com\example\foodforum\config\WebMvcConfig.class
+com\example\foodforum\entity\Post.class
+com\example\foodforum\entity\Comment.class
+com\example\foodforum\entity\User.class
+com\example\foodforum\FoodForumApplication.class
+com\example\foodforum\service\UserService.class
+com\example\foodforum\controller\AuthController.class
+com\example\foodforum\service\CommentService.class
