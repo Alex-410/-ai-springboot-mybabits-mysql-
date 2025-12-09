@@ -92,6 +92,22 @@
             backdrop-filter: blur(5px);
             -webkit-backdrop-filter: blur(5px);
         }
+        .search-section select {
+            padding: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            box-sizing: border-box;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+        
+        /* 修复下拉菜单选项的显示问题 */
+        .search-section select option {
+            background-color: #333;
+            color: white;
+        }
         .search-section input::placeholder {
             color: rgba(255, 255, 255, 0.7);
         }
@@ -196,6 +212,15 @@
             font-weight: bold;
             color: #64b5f6;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        .post-category {
+            font-size: 0.8rem;
+            color: #FFD700;
+            background: rgba(255, 215, 0, 0.2);
+            padding: 2px 8px;
+            border-radius: 10px;
+            display: inline-block;
+            margin: 2px 0;
         }
         .post-date {
             font-size: 0.8rem;
@@ -467,6 +492,9 @@
     <div class="container">
         <div class="search-section">
             <input type="text" id="searchInput" placeholder="搜索帖子...">
+            <select id="categoryFilter">
+                <option value="">所有分类</option>
+            </select>
             <button id="searchButton" class="btn">搜索</button>
             <button id="clearSearchButton" class="btn">清除</button>
         </div>
@@ -484,6 +512,7 @@
         // 页面加载完成后执行
         window.onload = function() {
             checkLoginStatus();
+            loadCategories(); // 加载分类数据
             loadPosts();
             
             // 登录按钮事件
@@ -519,14 +548,22 @@
             });
             
             // 搜索按钮事件
-            document.getElementById('searchButton').addEventListener('click', function() {
-                const keyword = document.getElementById('searchInput').value.trim();
-                if (keyword) {
-                    searchPosts(keyword);
-                } else {
-                    loadPosts();
-                }
-            });
+        document.getElementById('searchButton').addEventListener('click', function() {
+            const keyword = document.getElementById('searchInput').value.trim();
+            const categoryId = document.getElementById('categoryFilter').value;
+            if (keyword || categoryId) {
+                searchPosts(keyword, categoryId, 1, 2); // 添加分页参数
+            } else {
+                loadPosts();
+            }
+        });
+        
+        // 分类筛选事件
+        document.getElementById('categoryFilter').addEventListener('change', function() {
+            const keyword = document.getElementById('searchInput').value.trim();
+            const categoryId = this.value;
+            searchPosts(keyword, categoryId, 1, 2); // 添加分页参数
+        });
             
             // 清除搜索按钮事件
             document.getElementById('clearSearchButton').addEventListener('click', function() {
@@ -624,6 +661,28 @@
             });
         });
         
+        // 加载分类数据
+        function loadCategories() {
+            fetch('/api/categories')
+            .then(response => response.json())
+            .then(categories => {
+                const categoryFilter = document.getElementById('categoryFilter');
+                // 清空现有选项（除了默认选项）
+                categoryFilter.innerHTML = '<option value="">所有分类</option>';
+                
+                // 添加分类选项
+                categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.id;
+                    option.textContent = category.name;
+                    categoryFilter.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error loading categories:', error);
+            });
+        }
+        
         // 注意：发布帖子功能已移到post.html页面
         
         // 创建帖子分页控件
@@ -719,6 +778,7 @@
                                 <img src="${user && user.avatar ? user.avatar : '/uploads/default-avatar.png'}" alt="用户头像" class="user-avatar">
                                 <div class="user-details">
                                     <span class="user-nickname">${user ? user.nickname : '未知用户'}</span>
+                                    <span class="post-category">${postWithUser.categoryName || '未知分类'}</span>
                                     <span class="post-date">${formattedDate}</span>
                                 </div>
                             </div>
@@ -823,20 +883,51 @@
             });
         }
         
-        // 搜索帖子
-        function searchPosts(keyword) {
-            fetch(`/api/posts/search?keyword=${encodeURIComponent(keyword)}`)
+        // 搜索帖子（带分页功能）
+        function searchPosts(keyword, categoryId = '', page = 1, size = 2) {
+            let url = '/api/posts/search/page';
+            const params = [];
+            
+            if (keyword) {
+                params.push(`keyword=${encodeURIComponent(keyword)}`);
+            }
+            
+            if (categoryId) {
+                params.push(`categoryId=${categoryId}`);
+            }
+            
+            // 添加分页参数
+            params.push(`page=${page}`);
+            params.push(`size=${size}`);
+            
+            if (params.length > 0) {
+                url += '?' + params.join('&');
+            }
+            
+            fetch(url)
             .then(response => response.json())
-            .then(posts => {
+            .then(pageResult => {
                 const postsContainer = document.getElementById('posts');
                 postsContainer.innerHTML = '';
                 
-                if (posts.length === 0) {
+                if (pageResult.data.length === 0) {
                     postsContainer.innerHTML = '<p>没有找到匹配的帖子。</p>';
+                    // 移除现有的分页控件
+                    const existingPagination = document.querySelector('.pagination.posts-pagination');
+                    if (existingPagination) {
+                        existingPagination.remove();
+                    }
                     return;
                 }
                 
-                posts.forEach(post => {
+                pageResult.data.forEach(postWithUser => {
+                    const post = postWithUser.post;
+                    const user = postWithUser.user;
+                    
+                    // 格式化日期，只显示年月日
+                    const createdAt = new Date(post.createdAt);
+                    const formattedDate = `${createdAt.getFullYear()}-${String(createdAt.getMonth() + 1).padStart(2, '0')}-${String(createdAt.getDate()).padStart(2, '0')}`;
+                    
                     // 创建图片显示HTML
                     let imagesHTML = '';
                     if (post.imageUrls && Array.isArray(post.imageUrls) && post.imageUrls.length > 0) {
@@ -863,9 +954,28 @@
                     const postElement = document.createElement('div');
                     postElement.className = 'post';
                     postElement.innerHTML = `
+                        <div class="post-header">
+                            <div class="user-info">
+                                <img src="${user && user.avatar ? user.avatar : '/uploads/default-avatar.png'}" alt="用户头像" class="user-avatar">
+                                <div class="user-details">
+                                    <span class="user-nickname">${user ? user.nickname : '未知用户'}</span>
+                                    <span class="post-category">${postWithUser.categoryName || '未知分类'}</span>
+                                    <span class="post-date">${formattedDate}</span>
+                                </div>
+                            </div>
+                            <div class="post-actions">
+                                <button class="like-btn" data-post-id="${post.id}">
+                                    <span class="heart-icon">❤</span>
+                                    <span class="like-count">${post.likeCount || 0}</span>
+                                </button>
+                                <button class="favorite-btn" data-post-id="${post.id}">
+                                    <span class="star-icon">★</span>
+                                    <span class="favorite-count">${post.favoriteCount || 0}</span>
+                                </button>
+                            </div>
+                        </div>
                         <h3 class="post-title">${post.title}</h3>
                         <p class="post-content">${post.content}</p>
-                        <small>用户ID: ${post.userId} | 分类ID: ${post.categoryId} | 发布时间: ${post.createdAt}</small>
                         ${imagesHTML}
                         <div class="comments-section" id="comments-${post.id}">
                             <h4>评论</h4>
@@ -877,6 +987,56 @@
                         </div>
                     `;
                     postsContainer.appendChild(postElement);
+                    
+                    // 为点赞按钮添加事件监听器
+                    const likeBtn = postElement.querySelector('.like-btn');
+                    likeBtn.addEventListener('click', function() {
+                        const postId = this.getAttribute('data-post-id');
+                        const likeCountEl = this.querySelector('.like-count');
+                        
+                        // 发送请求到后端更新点赞数
+                        fetch(`/api/posts/${postId}/like`, { method: 'POST' })
+                        .then(response => response.text())
+                        .then(result => {
+                            console.log(result);
+                            // 更新前端显示的点赞数
+                            let count = parseInt(likeCountEl.textContent) || 0;
+                            count++;
+                            likeCountEl.textContent = count;
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            // 即使后端出错，也更新前端显示（用户体验考虑）
+                            let count = parseInt(likeCountEl.textContent) || 0;
+                            count++;
+                            likeCountEl.textContent = count;
+                        });
+                    });
+                    
+                    // 为收藏按钮添加事件监听器
+                    const favoriteBtn = postElement.querySelector('.favorite-btn');
+                    favoriteBtn.addEventListener('click', function() {
+                        const postId = this.getAttribute('data-post-id');
+                        const favoriteCountEl = this.querySelector('.favorite-count');
+                        
+                        // 发送请求到后端更新收藏数
+                        fetch(`/api/posts/${postId}/favorite`, { method: 'POST' })
+                        .then(response => response.text())
+                        .then(result => {
+                            console.log(result);
+                            // 更新前端显示的收藏数
+                            let count = parseInt(favoriteCountEl.textContent) || 0;
+                            count++;
+                            favoriteCountEl.textContent = count;
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            // 即使后端出错，也更新前端显示（用户体验考虑）
+                            let count = parseInt(favoriteCountEl.textContent) || 0;
+                            count++;
+                            favoriteCountEl.textContent = count;
+                        });
+                    });
                     
                     // 为每个帖子的评论表单添加事件监听器
                     const commentForm = postElement.querySelector('.comment-form');
@@ -895,6 +1055,9 @@
                     // 加载该帖子的评论
                     loadComments(post.id);
                 });
+                
+                // 创建分页控件
+                createPostPagination(pageResult.page, pageResult.totalPages);
             })
             .catch(error => {
                 console.error('Error:', error);

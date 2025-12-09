@@ -6,6 +6,7 @@ import com.example.foodforum.mapper.PostMapper;
 import com.example.foodforum.mapper.UserMapper;
 import com.example.foodforum.dto.PageResult;
 import com.example.foodforum.dto.PostWithUserDto;
+import com.example.foodforum.entity.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 
 @Service
 public class PostService {
@@ -27,6 +30,9 @@ public class PostService {
     
     @Autowired
     private UserMapper userMapper;
+    
+    @Autowired
+    private CategoryService categoryService;
     
     public Post findById(Long id) {
         Post post = postMapper.findById(id);
@@ -111,6 +117,23 @@ public class PostService {
         return posts;
     }
     
+    public List<Post> searchByKeywordAndCategoryId(String keyword, Integer categoryId) {
+        List<Post> posts = postMapper.searchByKeywordAndCategoryId(keyword, categoryId);
+        // 将images字段的JSON字符串转换为imageUrls列表
+        for (Post post : posts) {
+            if (post.getImages() != null && !post.getImages().isEmpty()) {
+                try {
+                    List<String> imageUrls = objectMapper.readValue(post.getImages(), new TypeReference<List<String>>() {});
+                    post.setImageUrls(imageUrls);
+                } catch (JsonProcessingException e) {
+                    // 如果转换失败，设置为空列表
+                    post.setImageUrls(new ArrayList<>());
+                }
+            }
+        }
+        return posts;
+    }
+    
     public int insert(Post post) {
         // 将imageUrls列表转换为JSON字符串存储到images字段
         if (post.getImageUrls() != null && !post.getImageUrls().isEmpty()) {
@@ -179,10 +202,18 @@ public class PostService {
         }
         int total = postMapper.countAll();
         
-        // 为每个帖子获取用户信息
+        // 获取所有分类信息并建立ID到名称的映射
+        List<Category> categories = categoryService.findAll();
+        Map<Integer, String> categoryMap = new HashMap<>();
+        for (Category category : categories) {
+            categoryMap.put(category.getId(), category.getName());
+        }
+        
+        // 为每个帖子获取用户信息和分类名称
         List<PostWithUserDto> postWithUserDtos = posts.stream().map(post -> {
             User user = userMapper.findById(post.getUserId());
-            return new PostWithUserDto(post, user);
+            String categoryName = categoryMap.getOrDefault(post.getCategoryId(), "未知分类");
+            return new PostWithUserDto(post, user, categoryName);
         }).collect(Collectors.toList());
         
         return new PageResult<>(postWithUserDtos, total, page, size);
@@ -194,5 +225,54 @@ public class PostService {
     
     public int incrementFavoriteCount(Long id) {
         return postMapper.incrementFavoriteCount(id);
+    }
+    
+    // 新增支持分页的搜索方法
+    public PageResult<PostWithUserDto> searchWithPagination(String keyword, Integer categoryId, int page, int size) {
+        int offset = (page - 1) * size;
+        List<Post> posts;
+        int total;
+        
+        if (keyword != null && !keyword.isEmpty() && categoryId != null) {
+            posts = postMapper.searchByKeywordAndCategoryIdWithPagination(keyword, categoryId, offset, size);
+            total = postMapper.countByKeywordAndCategoryId(keyword, categoryId);
+        } else if (keyword != null && !keyword.isEmpty()) {
+            posts = postMapper.searchByKeywordWithPagination(keyword, offset, size);
+            total = postMapper.countByKeyword(keyword);
+        } else if (categoryId != null) {
+            posts = postMapper.findByCategoryIdWithPagination(categoryId, offset, size);
+            total = postMapper.countByCategoryId(categoryId);
+        } else {
+            return findAllWithUserPagination(page, size); // 如果没有搜索条件，则返回所有帖子
+        }
+        
+        // 将images字段的JSON字符串转换为imageUrls列表
+        for (Post post : posts) {
+            if (post.getImages() != null && !post.getImages().isEmpty()) {
+                try {
+                    List<String> imageUrls = objectMapper.readValue(post.getImages(), new TypeReference<List<String>>() {});
+                    post.setImageUrls(imageUrls);
+                } catch (JsonProcessingException e) {
+                    // 如果转换失败，设置为空列表
+                    post.setImageUrls(new ArrayList<>());
+                }
+            }
+        }
+        
+        // 获取所有分类信息并建立ID到名称的映射
+        List<Category> categories = categoryService.findAll();
+        Map<Integer, String> categoryMap = new HashMap<>();
+        for (Category category : categories) {
+            categoryMap.put(category.getId(), category.getName());
+        }
+        
+        // 为每个帖子获取用户信息和分类名称
+        List<PostWithUserDto> postWithUserDtos = posts.stream().map(post -> {
+            User user = userMapper.findById(post.getUserId());
+            String categoryName = categoryMap.getOrDefault(post.getCategoryId(), "未知分类");
+            return new PostWithUserDto(post, user, categoryName);
+        }).collect(Collectors.toList());
+        
+        return new PageResult<>(postWithUserDtos, total, page, size);
     }
 }

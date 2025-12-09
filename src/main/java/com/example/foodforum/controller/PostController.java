@@ -41,8 +41,26 @@ public class PostController {
     }
     
     @GetMapping("/search")
-    public List<Post> searchPosts(@RequestParam String keyword) {
-        return postService.searchByKeyword(keyword);
+    public List<Post> searchPosts(@RequestParam(required = false) String keyword, 
+                                 @RequestParam(required = false) Integer categoryId) {
+        if (keyword != null && !keyword.isEmpty() && categoryId != null) {
+            return postService.searchByKeywordAndCategoryId(keyword, categoryId);
+        } else if (keyword != null && !keyword.isEmpty()) {
+            return postService.searchByKeyword(keyword);
+        } else if (categoryId != null) {
+            return postService.findByCategoryId(categoryId);
+        } else {
+            return postService.findAll();
+        }
+    }
+    
+    @GetMapping("/search/page")
+    public PageResult<PostWithUserDto> searchPostsWithPagination(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Integer categoryId,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "2") int size) {
+        return postService.searchWithPagination(keyword, categoryId, page, size);
     }
     
     @GetMapping("/user/{userId}")

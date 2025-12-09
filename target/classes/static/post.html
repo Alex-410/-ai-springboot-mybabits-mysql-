@@ -249,9 +249,7 @@
                 <div class="form-group">
                     <label for="categoryId">分类:</label>
                     <select id="categoryId" required>
-                        <option value="1">美食分享</option>
-                        <option value="2">烹饪技巧</option>
-                        <option value="3">餐厅推荐</option>
+                        <!-- 分类选项将通过JavaScript动态加载 -->
                     </select>
                 </div>
                 <div class="form-group">
@@ -292,6 +290,7 @@
         // 页面加载完成后执行
         window.onload = function() {
             checkLoginStatus();
+            loadCategories(); // 加载分类数据
             
             // 返回首页按钮事件
             document.getElementById('homeButton').addEventListener('click', function() {
@@ -342,6 +341,28 @@
                 
                 // 禁用发布按钮
                 document.querySelector('#postForm button[type="submit"]').disabled = true;
+            });
+        }
+        
+        // 加载分类数据
+        function loadCategories() {
+            fetch('/api/categories')
+            .then(response => response.json())
+            .then(categories => {
+                const categorySelect = document.getElementById('categoryId');
+                // 清空现有选项
+                categorySelect.innerHTML = '';
+                
+                // 添加分类选项
+                categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.id;
+                    option.textContent = category.name;
+                    categorySelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error loading categories:', error);
             });
         }
         

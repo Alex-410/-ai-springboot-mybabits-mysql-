@@ -6,12 +6,19 @@ import com.example.foodforum.entity.User;
 public class PostWithUserDto {
     private Post post;
     private User user;
+    private String categoryName;
     
     public PostWithUserDto() {}
     
     public PostWithUserDto(Post post, User user) {
         this.post = post;
         this.user = user;
+    }
+    
+    public PostWithUserDto(Post post, User user, String categoryName) {
+        this.post = post;
+        this.user = user;
+        this.categoryName = categoryName;
     }
     
     // Getters and Setters
@@ -29,5 +36,13 @@ public class PostWithUserDto {
     
     public void setUser(User user) {
         this.user = user;
+    }
+    
+    public String getCategoryName() {
+        return categoryName;
+    }
+    
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
     }
 }
