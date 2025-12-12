@@ -22,6 +22,10 @@ public class CommentService {
         return commentMapper.findByPostId(postId);
     }
     
+    public List<Comment> findByParentId(Long parentId) {
+        return commentMapper.findByParentId(parentId);
+    }
+    
     public PageResult<Comment> findByPostIdWithPagination(Long postId, int page, int size) {
         int offset = (page - 1) * size;
         List<Comment> comments = commentMapper.findByPostIdWithPagination(postId, offset, size);
@@ -31,6 +35,13 @@ public class CommentService {
     
     public List<Comment> findByUserId(Long userId) {
         return commentMapper.findByUserId(userId);
+    }
+    
+    public PageResult<Comment> findByUserIdWithPagination(Long userId, int page, int size) {
+        int offset = (page - 1) * size;
+        List<Comment> comments = commentMapper.findByUserIdWithPagination(userId, offset, size);
+        long total = commentMapper.countByUserId(userId);
+        return new PageResult<>(comments, total, page, size);
     }
     
     public List<Comment> findAll() {
@@ -47,5 +58,10 @@ public class CommentService {
     
     public int deleteById(Long id) {
         return commentMapper.deleteById(id);
+    }
+    
+    // 更新评论状态
+    public boolean updateCommentStatus(Long id, Integer status) {
+        return commentMapper.updateCommentStatus(id, status) > 0;
     }
 }

@@ -27,6 +27,9 @@ public interface UserMapper {
             "WHERE id=#{id}")
     int update(User user);
     
+    @Update("UPDATE users SET status=#{status}, updated_at=NOW() WHERE id=#{id}")
+    int updateUserStatus(@Param("id") Long id, @Param("status") Integer status);
+    
     @Delete("DELETE FROM users WHERE id = #{id}")
     int deleteById(Long id);
 }

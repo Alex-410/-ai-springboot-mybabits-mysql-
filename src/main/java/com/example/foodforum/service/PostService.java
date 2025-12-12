@@ -166,6 +166,11 @@ public class PostService {
         return postMapper.deleteById(id);
     }
     
+    // 更新帖子状态
+    public int updatePostStatus(Long id, Integer status) {
+        return postMapper.updatePostStatus(id, status);
+    }
+    
     public PageResult<Post> findAllWithPagination(int page, int size) {
         int offset = (page - 1) * size;
         List<Post> posts = postMapper.findAllWithPagination(offset, size);

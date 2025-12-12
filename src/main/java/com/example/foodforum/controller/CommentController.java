@@ -6,7 +6,9 @@ import com.example.foodforum.dto.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/comments")
@@ -48,6 +50,25 @@ public class CommentController {
     @GetMapping("/user/{userId}")
     public List<Comment> getCommentsByUserId(@PathVariable Long userId) {
         return commentService.findByUserId(userId);
+    }
+    
+    /**
+     * 根据用户ID获取评论（分页）
+     */
+    @GetMapping("/user/{userId}/page")
+    public PageResult<Comment> getCommentsByUserIdWithPagination(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return commentService.findByUserIdWithPagination(userId, page, size);
+    }
+    
+    /**
+     * 根据父评论ID获取所有回复评论
+     */
+    @GetMapping("/parent/{parentId}")
+    public List<Comment> getCommentsByParentId(@PathVariable Long parentId) {
+        return commentService.findByParentId(parentId);
     }
     
     /**
@@ -97,5 +118,29 @@ public class CommentController {
         } else {
             return "评论删除失败";
         }
+    }
+    
+    // 更新评论状态
+    @PutMapping("/{id}/status")
+    public Map<String, Object> updateCommentStatus(@PathVariable Long id, @RequestBody Map<String, Integer> requestBody) {
+        Map<String, Object> result = new HashMap<>();
+        Integer status = requestBody.get("status");
+        
+        if (status == null) {
+            result.put("success", false);
+            result.put("message", "状态值不能为空");
+            return result;
+        }
+        
+        boolean success = commentService.updateCommentStatus(id, status);
+        if (success) {
+            result.put("success", true);
+            result.put("message", "评论状态更新成功");
+        } else {
+            result.put("success", false);
+            result.put("message", "评论状态更新失败");
+        }
+        
+        return result;
     }
 }

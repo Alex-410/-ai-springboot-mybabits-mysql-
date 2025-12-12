@@ -41,6 +41,9 @@ public interface PostMapper {
             "status=#{status}, updated_at=NOW() WHERE id=#{id}")
     int update(Post post);
     
+    @Update("UPDATE posts SET status=#{status}, updated_at=NOW() WHERE id=#{id}")
+    int updatePostStatus(@Param("id") Long id, @Param("status") Integer status);
+    
     @Delete("DELETE FROM posts WHERE id = #{id}")
     int deleteById(Long id);
     

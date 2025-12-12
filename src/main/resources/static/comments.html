@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>评论管理 - 美食论坛</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+            transition: all 0.3s ease;
+        }
+        
+        .container:hover {
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            transform: translateY(-5px);
+        }
+        h1 {
+            color: white;
+            text-align: center;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            box-sizing: border-box;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            color: white;
+        }
+        
+        input::placeholder, textarea::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.3);
+        }
+        button {
+            background: rgba(255, 107, 107, 0.8);
+            color: white;
+            padding: 12px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            font-weight: bold;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        button:hover {
+            background: rgba(255, 107, 107, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .btn-secondary {
+            background: rgba(108, 117, 125, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .btn-secondary:hover {
+            background: rgba(108, 117, 125, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .btn-danger {
+            background: rgba(255, 107, 107, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .btn-danger:hover {
+            background: rgba(255, 107, 107, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .avatar-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid rgba(255, 255, 255, 0.5);
+            margin-bottom: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        .message {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        .error {
+            background: rgba(248, 215, 218, 0.9);
+            color: #721c24;
+            border: 1px solid rgba(245, 198, 203, 0.5);
+        }
+        .success {
+            background: rgba(212, 237, 218, 0.9);
+            color: #155724;
+            border: 1px solid rgba(195, 230, 203, 0.5);
+        }
+        .hidden {
+            display: none;
+        }
+        .nav-links {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+            font-weight: bold;
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.3);
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
+        .comments-list {
+            display: grid;
+            gap: 1rem;
+        }
+        .comment {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1.5px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+        .comment-content {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 0.5rem;
+        }
+        .comment-meta {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .comment-actions {
+            margin-top: 0.5rem;
+        }
+        .comment-actions button {
+            padding: 5px 10px;
+            font-size: 0.9rem;
+            margin-right: 5px;
+        }
+        .no-data {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 20px;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            margin-right: 5px;
+        }
+        .tab.active {
+            background: rgba(255, 255, 255, 0.3);
+            font-weight: bold;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .reply-form {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .reply-input {
+            width: 100%;
+            padding: 8px;
+            border-radius: 5px;
+            box-sizing: border-box;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            margin-bottom: 10px;
+        }
+        .reply-button {
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+        /* 分页控件样式 */
+        .pagination {
+            margin-top: 1rem;
+            text-align: center;
+        }
+        
+        .pagination-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .pagination-controls button {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .pagination-controls button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .pagination-controls .current-page {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 107, 107, 0.8);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>美食论坛</h1>
+            <div class="user-info">
+                <span id="welcomeMessage">欢迎访问美食论坛</span>
+                <button id="logoutButton" class="btn-secondary hidden"><a href="/login.html">注销</a></button>
+            </div>
+        </div>
+        
+        <div class="nav-links">
+            <a href="index.html">首页</a>
+            <a href="profile.html">个人资料</a>
+            <a href="comments.html" class="active">评论管理</a>
+        </div>
+        
+        <div id="authSection">
+            <p>请先<a href="login.html">登录</a>以查看和管理评论。</p>
+        </div>
+        
+        <div id="commentsSection" class="hidden">
+            <h2>评论管理</h2>
+            
+            <div class="tabs">
+                <div class="tab active" data-tab="my-comments">我的评论</div>
+            </div>
+            
+            <div id="message" class="message hidden"></div>
+            
+            <!-- 我的评论标签页 -->
+            <div id="my-comments" class="tab-content active">
+                <h3>我的评论历史</h3>
+                <div id="myCommentsList">
+                    <div class="no-data">加载中...</div>
+                </div>
+                <div id="myCommentsPagination" class="pagination"></div>
+            </div>
+            
+            <!-- 所有评论标签页 -->
+            <div id="all-comments" class="tab-content">
+                <h3>所有评论</h3>
+                <div id="allCommentsList">
+                    <div class="no-data">加载中...</div>
+                </div>
+                <div id="allCommentsPagination" class="pagination"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 检查用户登录状态
+        function checkLoginStatus() {
+            fetch('/api/auth/status')
+            .then(response => response.json())
+            .then(data => {
+                if (data.loggedIn) {
+                    // 用户已登录
+                    document.getElementById('welcomeMessage').textContent = `欢迎, ${data.user.username}!`;
+                    document.getElementById('authSection').classList.add('hidden');
+                    document.getElementById('commentsSection').classList.remove('hidden');
+                    document.getElementById('logoutButton').classList.remove('hidden');
+                    
+                    // 加载用户评论
+                    loadMyComments(1, 10);
+                } else {
+                    // 用户未登录
+                    document.getElementById('welcomeMessage').textContent = '欢迎访问美食论坛';
+                    document.getElementById('authSection').classList.remove('hidden');
+                    document.getElementById('commentsSection').classList.add('hidden');
+                    document.getElementById('logoutButton').classList.add('hidden');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+        
+        // 标签页切换
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // 移除所有活动状态
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // 添加当前活动状态
+                this.classList.add('active');
+                const tabId = this.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+                
+                // 根据标签页加载相应数据
+                if (tabId === 'my-comments') {
+                    loadMyComments(1, 10);
+                } else if (tabId === 'all-comments') {
+                    loadAllComments(1, 10);
+                }
+            });
+        });
+        
+        // 加载我的评论
+        function loadMyComments(page = 1, size = 10) {
+            fetch(`/api/comments/user/${getCurrentUserId()}/page?page=${page}&size=${size}`)
+            .then(response => response.json())
+            .then(pageResult => {
+                const commentsContainer = document.getElementById('myCommentsList');
+                
+                if (!pageResult.data || pageResult.data.length === 0) {
+                    commentsContainer.innerHTML = '<div class="no-data">暂无评论</div>';
+                    return;
+                }
+                
+                commentsContainer.innerHTML = '';
+                pageResult.data.forEach(comment => {
+                    const commentElement = document.createElement('div');
+                    commentElement.className = 'comment';
+                    commentElement.innerHTML = `
+                        <p class="comment-content">${comment.content}</p>
+                        <div class="comment-meta">
+                            <span>发表于 ${new Date(comment.createdAt).toLocaleString()}</span>
+                            <span>关联帖子ID: ${comment.postId}</span>
+                        </div>
+                        <div class="comment-actions">
+                            <button onclick="deleteComment(${comment.id})" class="btn-danger">删除</button>
+                            <button onclick="showReplyForm(${comment.id})" class="btn-secondary">回复</button>
+                        </div>
+                        <div id="reply-form-${comment.id}" class="reply-form hidden">
+                            <textarea id="reply-content-${comment.id}" class="reply-input" placeholder="请输入回复内容..."></textarea>
+                            <button onclick="submitReply(${comment.id}, ${comment.postId})" class="reply-button">提交回复</button>
+                            <button onclick="hideReplyForm(${comment.id})" class="btn-secondary reply-button">取消</button>
+                        </div>
+                    `;
+                    commentsContainer.appendChild(commentElement);
+                });
+                
+                // 创建分页控件
+                createPagination('myCommentsPagination', page, pageResult.totalPages, loadMyComments);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('myCommentsList').innerHTML = '<div class="no-data">无法加载您的评论</div>';
+            });
+        }
+        
+        // 加载所有评论
+        function loadAllComments(page = 1, size = 10) {
+            fetch(`/api/comments/page?page=${page}&size=${size}`)
+            .then(response => response.json())
+            .then(pageResult => {
+                const commentsContainer = document.getElementById('allCommentsList');
+                
+                if (!pageResult.data || pageResult.data.length === 0) {
+                    commentsContainer.innerHTML = '<div class="no-data">暂无评论</div>';
+                    return;
+                }
+                
+                commentsContainer.innerHTML = '';
+                pageResult.data.forEach(comment => {
+                    const commentElement = document.createElement('div');
+                    commentElement.className = 'comment';
+                    commentElement.innerHTML = `
+                        <p class="comment-content">${comment.content}</p>
+                        <div class="comment-meta">
+                            <span>用户ID: ${comment.userId}</span>
+                            <span>发表于 ${new Date(comment.createdAt).toLocaleString()}</span>
+                            <span>关联帖子ID: ${comment.postId}</span>
+                        </div>
+                        <div class="comment-actions">
+                            <button onclick="showReplyForm(${comment.id})" class="btn-secondary">回复</button>
+                        </div>
+                        <div id="reply-form-${comment.id}" class="reply-form hidden">
+                            <textarea id="reply-content-${comment.id}" class="reply-input" placeholder="请输入回复内容..."></textarea>
+                            <button onclick="submitReply(${comment.id}, ${comment.postId})" class="reply-button">提交回复</button>
+                            <button onclick="hideReplyForm(${comment.id})" class="btn-secondary reply-button">取消</button>
+                        </div>
+                    `;
+                    commentsContainer.appendChild(commentElement);
+                });
+                
+                // 创建分页控件
+                createPagination('allCommentsPagination', page, pageResult.totalPages, loadAllComments);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('allCommentsList').innerHTML = '<div class="no-data">无法加载评论</div>';
+            });
+        }
+        
+        // 获取当前用户ID
+        function getCurrentUserId() {
+            // 这里应该从登录状态中获取用户ID
+            // 为了简化，我们假设有一个全局变量存储用户信息
+            // 实际应用中应该从服务器获取
+            return localStorage.getItem('userId') || 1;
+        }
+        
+        // 显示回复表单
+        function showReplyForm(commentId) {
+            document.getElementById(`reply-form-${commentId}`).classList.remove('hidden');
+        }
+        
+        // 隐藏回复表单
+        function hideReplyForm(commentId) {
+            document.getElementById(`reply-form-${commentId}`).classList.add('hidden');
+        }
+        
+        // 提交回复
+        function submitReply(parentId, postId) {
+            const content = document.getElementById(`reply-content-${parentId}`).value;
+            if (!content.trim()) {
+                showMessage('回复内容不能为空', 'error');
+                return;
+            }
+            
+            const replyData = {
+                postId: postId,
+                parentId: parentId,
+                content: content,
+                status: 1
+            };
+            
+            fetch('/api/comments', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(replyData)
+            })
+            .then(response => response.text())
+            .then(data => {
+                if (data === '评论创建成功') {
+                    showMessage('回复发表成功！', 'success');
+                    document.getElementById(`reply-form-${parentId}`).classList.add('hidden');
+                    document.getElementById(`reply-content-${parentId}`).value = '';
+                    
+                    // 刷新当前标签页的数据
+                    const activeTab = document.querySelector('.tab.active').getAttribute('data-tab');
+                    if (activeTab === 'my-comments') {
+                        loadMyComments();
+                    } else if (activeTab === 'all-comments') {
+                        loadAllComments();
+                    }
+                } else {
+                    showMessage('回复发表失败: ' + data, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('回复发表失败，请稍后重试', 'error');
+            });
+        }
+        
+        // 删除评论
+        function deleteComment(commentId) {
+            if (confirm('确定要删除这条评论吗？此操作不可恢复。')) {
+                fetch(`/api/comments/${commentId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.text())
+                .then(data => {
+                    if (data === '评论删除成功') {
+                        showMessage('评论删除成功', 'success');
+                        // 重新加载当前标签页的数据
+                        const activeTab = document.querySelector('.tab.active').getAttribute('data-tab');
+                        if (activeTab === 'my-comments') {
+                            loadMyComments();
+                        } else if (activeTab === 'all-comments') {
+                            loadAllComments();
+                        }
+                    } else {
+                        showMessage('评论删除失败: ' + data, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showMessage('评论删除失败，请稍后重试', 'error');
+                });
+            }
+        }
+        
+        // 创建分页控件
+        function createPagination(containerId, currentPage, totalPages, loadFunction) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            // 如果只有一页，不需要分页控件
+            if (totalPages <= 1) {
+                return;
+            }
+            
+            const paginationDiv = document.createElement('div');
+            paginationDiv.className = 'pagination-controls';
+            
+            let paginationHTML = '';
+            
+            // 上一页按钮
+            if (currentPage > 1) {
+                paginationHTML += `<button onclick="${loadFunction.name}(${currentPage - 1})">上一页</button>`;
+            }
+            
+            // 页码按钮
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === currentPage) {
+                    paginationHTML += `<span class="current-page">${i}</span>`;
+                } else {
+                    paginationHTML += `<button onclick="${loadFunction.name}(${i})">${i}</button>`;
+                }
+            }
+            
+            // 下一页按钮
+            if (currentPage < totalPages) {
+                paginationHTML += `<button onclick="${loadFunction.name}(${currentPage + 1})">下一页</button>`;
+            }
+            
+            paginationDiv.innerHTML = paginationHTML;
+            container.appendChild(paginationDiv);
+        }
+        
+        // 注销按钮事件
+        document.getElementById('logoutButton').addEventListener('click', function() {
+            fetch('/api/auth/logout', {
+                method: 'POST',
+                credentials: 'same-origin'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Received non-JSON response');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // 注销成功，跳转到登录页面
+                    window.location.href = '/login.html';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+        
+        // 显示消息
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = 'message ' + type;
+            messageDiv.classList.remove('hidden');
+            
+            // 3秒后自动隐藏消息
+            setTimeout(() => {
+                messageDiv.classList.add('hidden');
+            }, 3000);
+        }
+        
+        // 页面加载完成后执行
+        window.onload = function() {
+            checkLoginStatus();
+        };
+    </script>
+    <script src="https://files.cnblogs.com/files/quaint/sakuraPlus.js"></script>
+</body>
+</html>

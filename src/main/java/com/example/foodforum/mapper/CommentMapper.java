@@ -29,6 +29,13 @@ public interface CommentMapper {
            "LIMIT #{offset}, #{limit}")
     List<Comment> findByPostIdWithPagination(Long postId, int offset, int limit);
     
+    @Select("SELECT c.*, u.nickname AS userNickname, u.avatar AS userAvatar " +
+           "FROM comments c " +
+           "JOIN users u ON c.user_id = u.id " +
+           "WHERE c.parent_id = #{parentId} " +
+           "ORDER BY c.created_at ASC")
+    List<Comment> findByParentId(Long parentId);
+    
     @Select("SELECT COUNT(*) " +
            "FROM comments c " +
            "WHERE c.post_id = #{postId}")
@@ -44,11 +51,24 @@ public interface CommentMapper {
     @Select("SELECT c.*, u.nickname AS userNickname, u.avatar AS userAvatar " +
            "FROM comments c " +
            "JOIN users u ON c.user_id = u.id " +
+           "WHERE c.user_id = #{userId} " +
+           "ORDER BY c.created_at DESC " +
+           "LIMIT #{offset}, #{limit}")
+    List<Comment> findByUserIdWithPagination(Long userId, int offset, int limit);
+    
+    @Select("SELECT COUNT(*) " +
+           "FROM comments c " +
+           "WHERE c.user_id = #{userId}")
+    long countByUserId(Long userId);
+    
+    @Select("SELECT c.*, u.nickname AS userNickname, u.avatar AS userAvatar " +
+           "FROM comments c " +
+           "JOIN users u ON c.user_id = u.id " +
            "ORDER BY c.created_at DESC")
     List<Comment> findAll();
     
     @Insert("INSERT INTO comments(post_id, user_id, content, parent_id, status) " +
-            "VALUES(#{postId}, #{userId}, #{content}, #{parentId}, #{status})")
+            "VALUES(#{postId}, #{userId}, #{content}, #{parentId,jdbcType=BIGINT}, #{status})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(Comment comment);
     
@@ -56,6 +76,9 @@ public interface CommentMapper {
             "parent_id=#{parentId}, status=#{status}, updated_at=NOW() " +
             "WHERE id=#{id}")
     int update(Comment comment);
+    
+    @Update("UPDATE comments SET status=#{status}, updated_at=NOW() WHERE id=#{id}")
+    int updateCommentStatus(@Param("id") Long id, @Param("status") Integer status);
     
     @Delete("DELETE FROM comments WHERE id = #{id}")
     int deleteById(Long id);

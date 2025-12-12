@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理系统 - 美食论坛</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px 0;
+            height: fit-content;
+        }
+
+        .nav-item {
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: #f8f9fa;
+        }
+
+        .nav-item.active {
+            background: #e3f2fd;
+            border-left: 3px solid #2196f3;
+            color: #2196f3;
+            font-weight: 500;
+        }
+
+        .nav-item i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .main-content {
+            flex: 1;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            min-height: 500px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #555;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #2196f3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1976d2;
+        }
+
+        .btn-danger {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
+        }
+
+        .btn-success {
+            background: #4caf50;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #388e3c;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .message {
+            padding: 10px;
+            margin: 15px 0;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: black;
+        }
+
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
+
+        .upload-area:hover {
+            border-color: #2196f3;
+        }
+
+        .upload-area.dragover {
+            border-color: #2196f3;
+            background-color: #e3f2fd;
+        }
+
+        .file-list {
+            margin-top: 15px;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            margin-bottom: 5px;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">美食论坛管理系统</div>
+            <div class="user-info">
+                <span id="adminName">管理员</span>
+                <button class="logout-btn" onclick="logout()">登出</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="sidebar">
+            <div class="nav-item active" onclick="showSection('dashboard')">
+                <i>📊</i> 仪表板
+            </div>
+            <div class="nav-item" onclick="showSection('users')">
+                <i>👥</i> 账户管理
+            </div>
+            <div class="nav-item" onclick="showSection('comments')">
+                <i>💬</i> 评论管理
+            </div>
+            <div class="nav-item" onclick="showSection('categories')">
+                <i>🏷️</i> 分类管理
+            </div>
+            <div class="nav-item" onclick="showSection('posts')">
+                <i>📝</i> 帖子管理
+            </div>
+            <div class="nav-item" onclick="showSection('uploads')">
+                <i>📁</i> 文件管理
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div id="message" class="message"></div>
+
+            <!-- 仪表板 -->
+            <div id="dashboard-section">
+                <h2 class="section-title">仪表板</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">总用户数</div>
+                        <div class="stat-number" id="userCount">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">总帖子数</div>
+                        <div class="stat-number" id="postCount">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">总评论数</div>
+                        <div class="stat-number" id="commentCount">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">总分类数</div>
+                        <div class="stat-number" id="categoryCount">0</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">系统信息</div>
+                    <p>欢迎使用美食论坛管理系统。在这里您可以管理网站的所有内容。</p>
+                </div>
+            </div>
+
+            <!-- 账户管理 -->
+            <div id="users-section" class="hidden">
+                <h2 class="section-title">账户管理</h2>
+                <div class="card">
+                    <div class="card-header">
+                        用户列表
+                        <button class="btn btn-primary" style="float: right;" onclick="loadUsers()">刷新</button>
+                    </div>
+                    <table id="usersTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>用户名</th>
+                                <th>昵称</th>
+                                <th>邮箱</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <!-- 用户数据将通过JavaScript动态加载 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 评论管理 -->
+            <div id="comments-section" class="hidden">
+                <h2 class="section-title">评论管理</h2>
+                <div class="card">
+                    <div class="card-header">
+                        评论列表
+                        <button class="btn btn-primary" style="float: right;" onclick="loadComments()">刷新</button>
+                    </div>
+                    <table id="commentsTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>用户ID</th>
+                                <th>帖子ID</th>
+                                <th>内容</th>
+                                <th>时间</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="commentsTableBody">
+                            <!-- 评论数据将通过JavaScript动态加载 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 分类管理 -->
+            <div id="categories-section" class="hidden">
+                <h2 class="section-title">分类管理</h2>
+                <div class="card">
+                    <div class="card-header">
+                        分类列表
+                        <button class="btn btn-primary" style="float: right;" onclick="loadCategories()">刷新</button>
+                    </div>
+                    <table id="categoriesTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>名称</th>
+                                <th>描述</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categoriesTableBody">
+                            <!-- 分类数据将通过JavaScript动态加载 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 帖子管理 -->
+            <div id="posts-section" class="hidden">
+                <h2 class="section-title">帖子管理</h2>
+                <div class="card">
+                    <div class="card-header">
+                        帖子列表
+                        <button class="btn btn-primary" style="float: right;" onclick="loadPosts()">刷新</button>
+                    </div>
+                    <table id="postsTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>标题</th>
+                                <th>作者ID</th>
+                                <th>分类ID</th>
+                                <th>时间</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="postsTableBody">
+                            <!-- 帖子数据将通过JavaScript动态加载 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 文件管理 -->
+            <div id="uploads-section" class="hidden">
+                <h2 class="section-title">文件管理</h2>
+                <div class="card">
+                    <div class="card-header">上传文件</div>
+                    <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                        <p>点击选择文件或拖拽文件到此处上传</p>
+                        <input type="file" id="fileInput" multiple style="display: none;">
+                    </div>
+                    <div class="file-list" id="fileList">
+                        <!-- 文件列表将通过JavaScript动态加载 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑用户模态框 -->
+    <div id="editUserModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditUserModal()">&times;</span>
+            <h2>编辑用户</h2>
+            <form id="editUserForm">
+                <input type="hidden" id="editUserId">
+                <div class="form-group">
+                    <label for="editUsername">用户名:</label>
+                    <input type="text" id="editUsername" required>
+                </div>
+                <div class="form-group">
+                    <label for="editNickname">昵称:</label>
+                    <input type="text" id="editNickname" required>
+                </div>
+                <div class="form-group">
+                    <label for="editEmail">邮箱:</label>
+                    <input type="email" id="editEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="editPassword">密码:</label>
+                    <input type="text" id="editPassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="editStatus">状态:</label>
+                    <select id="editStatus">
+                        <option value="1">正常</option>
+                        <option value="0">禁用</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">保存</button>
+                <button type="button" class="btn" onclick="closeEditUserModal()">取消</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 检查管理员登录状态
+        function checkAdminStatus() {
+            fetch('/api/admin/status')
+            .then(response => response.json())
+            .then(data => {
+                if (!data.loggedIn) {
+                    window.location.href = '/admin.html';
+                } else {
+                    document.getElementById('adminName').textContent = data.user.nickname || data.user.username;
+                    // 加载统计数据
+                    loadStats();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                window.location.href = '/admin.html';
+            });
+        }
+
+        // 管理员登出
+        function logout() {
+            fetch('/api/admin/logout', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '/admin.html';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        // 显示指定部分
+        function showSection(sectionId) {
+            // 隐藏所有部分
+            document.querySelectorAll('[id$="-section"]').forEach(el => {
+                el.classList.add('hidden');
+            });
+            
+            // 显示指定部分
+            document.getElementById(sectionId + '-section').classList.remove('hidden');
+            
+            // 更新导航栏激活状态
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.closest('.nav-item').classList.add('active');
+            
+            // 根据部分加载数据
+            switch(sectionId) {
+                case 'users':
+                    loadUsers();
+                    break;
+                case 'comments':
+                    loadComments();
+                    break;
+                case 'categories':
+                    loadCategories();
+                    break;
+                case 'posts':
+                    loadPosts();
+                    break;
+                case 'uploads':
+                    loadUploads();
+                    break;
+            }
+        }
+
+        // 加载统计数据
+        function loadStats() {
+            fetch('/api/stats/dashboard')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('userCount').textContent = data.userCount;
+                document.getElementById('postCount').textContent = data.postCount;
+                document.getElementById('commentCount').textContent = data.commentCount;
+                document.getElementById('categoryCount').textContent = data.categoryCount;
+            })
+            .catch(error => {
+                console.error('Error loading stats:', error);
+                // 如果API调用失败，使用默认值
+                document.getElementById('userCount').textContent = '0';
+                document.getElementById('postCount').textContent = '0';
+                document.getElementById('commentCount').textContent = '0';
+                document.getElementById('categoryCount').textContent = '0';
+            });
+        }
+
+        // 加载用户列表
+        function loadUsers() {
+            fetch('/api/users')
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.getElementById('usersTableBody');
+                tbody.innerHTML = '';
+                
+                data.forEach(user => {
+                    const row = tbody.insertRow();
+                    row.innerHTML = `
+                        <td>${user.id}</td>
+                        <td>${user.username}</td>
+                        <td>${user.nickname || ''}</td>
+                        <td>${user.email || ''}</td>
+                        <td>${user.password || ''}</td>
+                        <td>
+                            <select onchange="updateUserStatus(${user.id}, this.value)" data-user-status="${user.status}">
+                                <option value="1" ${user.status === 1 ? 'selected' : ''}>正常</option>
+                                <option value="0" ${user.status === 0 ? 'selected' : ''}>禁用</option>
+                            </select>
+                        </td>
+                        <td>
+                            <button class="btn btn-primary" onclick="editUser(${user.id})">编辑</button>
+                            <button class="btn btn-danger" onclick="deleteUser(${user.id})">删除</button>
+                        </td>
+                    `;
+                });
+                
+                showMessage('用户数据加载完成', 'success');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('加载用户数据失败', 'error');
+            });
+        }
+        
+        // 更新用户状态
+        function updateUserStatus(userId, status) {
+            fetch(`/api/users/${userId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status: parseInt(status) })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('用户状态更新成功', 'success');
+                    loadUsers(); // 重新加载用户列表
+                } else {
+                    showMessage('用户状态更新失败: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('用户状态更新失败', 'error');
+            });
+        }
+        
+        // 编辑用户
+        function editUser(userId) {
+            // 获取用户信息
+            fetch(`/api/users/${userId}`)
+            .then(response => response.json())
+            .then(user => {
+                // 填充模态框表单
+                document.getElementById('editUserId').value = user.id;
+                document.getElementById('editUsername').value = user.username;
+                document.getElementById('editNickname').value = user.nickname || '';
+                document.getElementById('editEmail').value = user.email || '';
+                document.getElementById('editPassword').value = user.password || '';
+                document.getElementById('editStatus').value = user.status || 1;
+                
+                // 显示模态框
+                document.getElementById('editUserModal').style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('获取用户信息失败', 'error');
+            });
+        }
+        
+        // 关闭编辑用户模态框
+        function closeEditUserModal() {
+            document.getElementById('editUserModal').style.display = 'none';
+        }
+        
+        // 保存用户编辑
+        function saveUserEdit() {
+            const userId = document.getElementById('editUserId').value;
+            const userData = {
+                username: document.getElementById('editUsername').value,
+                nickname: document.getElementById('editNickname').value,
+                email: document.getElementById('editEmail').value,
+                password: document.getElementById('editPassword').value,
+                status: parseInt(document.getElementById('editStatus').value)
+            };
+            
+            fetch(`/api/users/${userId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(userData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('用户信息更新成功', 'success');
+                    closeEditUserModal();
+                    loadUsers(); // 重新加载用户列表
+                } else {
+                    showMessage('用户信息更新失败: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('用户信息更新失败', 'error');
+            });
+        }
+        
+        // 删除用户
+        function deleteUser(userId) {
+            if (confirm('确定要删除这个用户吗？')) {
+                fetch(`/api/users/${userId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.text())
+                .then(data => {
+                    showMessage(data, 'success');
+                    loadUsers(); // 重新加载用户列表
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showMessage('删除用户失败', 'error');
+                });
+            }
+        }
+
+        // 加载评论列表
+        function loadComments() {
+            fetch('/api/comments')
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.getElementById('commentsTableBody');
+                tbody.innerHTML = '';
+                
+                data.forEach(comment => {
+                    const row = tbody.insertRow();
+                    row.innerHTML = `
+                        <td>${comment.id}</td>
+                        <td>${comment.userId}</td>
+                        <td>${comment.postId}</td>
+                        <td>${comment.content}</td>
+                        <td>${new Date(comment.createdAt).toLocaleString()}</td>
+                        <td>
+                            <select onchange="updateCommentStatus(${comment.id}, this.value)" ${comment.status === 2 ? 'disabled' : ''}>
+                                <option value="1" ${comment.status === 1 ? 'selected' : ''}>正常</option>
+                                <option value="2" ${comment.status === 2 ? 'selected' : ''}>删除</option>
+                            </select>
+                        </td>
+                        <td>
+                            <button class="btn btn-danger" onclick="deleteComment(${comment.id})">删除</button>
+                        </td>
+                    `;
+                });
+                
+                showMessage('评论数据加载完成', 'success');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('加载评论数据失败', 'error');
+            });
+        }
+        
+        // 更新评论状态
+        function updateCommentStatus(commentId, status) {
+            fetch(`/api/comments/${commentId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status: parseInt(status) })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('评论状态更新成功', 'success');
+                    loadComments(); // 重新加载评论列表
+                } else {
+                    showMessage('评论状态更新失败: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('评论状态更新失败', 'error');
+            });
+        }
+        
+        // 删除评论
+        function deleteComment(commentId) {
+            if (confirm('确定要删除这条评论吗？')) {
+                fetch(`/api/comments/${commentId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.text())
+                .then(data => {
+                    showMessage(data, 'success');
+                    loadComments(); // 重新加载评论列表
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showMessage('删除评论失败', 'error');
+                });
+            }
+        }
+
+        // 编辑分类
+        function editCategory(categoryId) {
+            // 这里可以实现分类编辑功能
+            alert('编辑分类功能待实现，分类ID: ' + categoryId);
+        }
+
+        // 删除分类
+        function deleteCategory(categoryId) {
+            if (confirm('确定要删除这个分类吗？')) {
+                // 这里可以实现分类删除功能
+                alert('删除分类功能待实现，分类ID: ' + categoryId);
+            }
+        }
+
+        // 更新帖子状态
+        function updatePostStatus(postId, status) {
+            // 这里可以实现更新帖子状态功能
+            console.log('更新帖子状态，帖子ID: ' + postId + ', 状态: ' + status);
+        }
+
+        // 编辑帖子
+        function editPost(postId) {
+            // 这里可以实现帖子编辑功能
+            alert('编辑帖子功能待实现，帖子ID: ' + postId);
+        }
+
+        // 删除帖子
+        function deletePost(postId) {
+            if (confirm('确定要删除这个帖子吗？')) {
+                // 这里可以实现帖子删除功能
+                alert('删除帖子功能待实现，帖子ID: ' + postId);
+            }
+        }
+
+        // 加载分类列表
+        function loadCategories() {
+            showMessage('正在加载分类数据...', 'info');
+            
+            fetch('/api/categories')
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.getElementById('categoriesTableBody');
+                tbody.innerHTML = '';
+                
+                data.forEach(category => {
+                    const row = tbody.insertRow();
+                    row.innerHTML = `
+                        <td>${category.id}</td>
+                        <td>${category.name}</td>
+                        <td>${category.description || ''}</td>
+                        <td>
+                            <button class="btn btn-primary" onclick="editCategory(${category.id})">编辑</button>
+                            <button class="btn btn-danger" onclick="deleteCategory(${category.id})">删除</button>
+                        </td>
+                    `;
+                });
+                
+                showMessage('分类数据加载完成', 'success');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('加载分类数据失败', 'error');
+            });
+        }
+
+        // 加载帖子列表
+        function loadPosts() {
+            showMessage('正在加载帖子数据...', 'info');
+            
+            fetch('/api/posts')
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.getElementById('postsTableBody');
+                tbody.innerHTML = '';
+                
+                data.forEach(post => {
+                    const row = tbody.insertRow();
+                    row.innerHTML = `
+                        <td>${post.id}</td>
+                        <td>${post.title}</td>
+                        <td>${post.userId}</td>
+                        <td>${post.categoryId}</td>
+                        <td>${new Date(post.createdAt).toLocaleString()}</td>
+                        <td>
+                            <select onchange="updatePostStatus(${post.id}, this.value)" data-post-status="${post.status}">
+                                <option value="1" ${post.status === 1 ? 'selected' : ''}>已发布</option>
+                                <option value="0" ${post.status === 0 ? 'selected' : ''}>草稿</option>
+                                <option value="2" ${post.status === 2 ? 'selected' : ''}>已删除</option>
+                            </select>
+                        </td>
+                        <td>
+                            <button class="btn btn-primary" onclick="editPost(${post.id})">编辑</button>
+                            <button class="btn btn-danger" onclick="deletePost(${post.id})">删除</button>
+                        </td>
+                    `;
+                });
+                
+                showMessage('帖子数据加载完成', 'success');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('加载帖子数据失败', 'error');
+            });
+        }
+
+        // 加载上传文件列表
+        function loadUploads() {
+            showMessage('正在加载文件数据...', 'info');
+            // 这里应该调用API获取文件数据
+            showMessage('文件数据加载完成', 'success');
+        }
+
+        // 显示消息
+        function showMessage(text, type) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.className = 'message ' + type;
+            messageEl.style.display = 'block';
+            
+            // 3秒后自动隐藏消息
+            setTimeout(() => {
+                messageEl.style.display = 'none';
+            }, 3000);
+        }
+
+        // 页面加载完成后检查管理员状态
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAdminStatus();
+            
+            // 添加表单提交事件监听器
+            const editUserForm = document.getElementById('editUserForm');
+            if (editUserForm) {
+                editUserForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    saveUserEdit();
+                });
+            }
+        });
+
+        // 点击模态框外部关闭模态框
+        window.onclick = function(event) {
+            const modal = document.getElementById('editUserModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

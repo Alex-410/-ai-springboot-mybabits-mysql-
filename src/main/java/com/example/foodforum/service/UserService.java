@@ -75,4 +75,9 @@ public class UserService {
         }
         return false;
     }
+    
+    // 更新用户状态
+    public boolean updateUserStatus(Long id, Integer status) {
+        return userMapper.updateUserStatus(id, status) > 0;
+    }
 }

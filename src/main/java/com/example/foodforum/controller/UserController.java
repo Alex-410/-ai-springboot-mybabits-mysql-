@@ -61,6 +61,30 @@ public class UserController {
         }
     }
     
+    // 更新用户状态
+    @PutMapping("/{id}/status")
+    public Map<String, Object> updateUserStatus(@PathVariable Long id, @RequestBody Map<String, Integer> requestBody) {
+        Map<String, Object> result = new HashMap<>();
+        Integer status = requestBody.get("status");
+        
+        if (status == null) {
+            result.put("success", false);
+            result.put("message", "状态值不能为空");
+            return result;
+        }
+        
+        boolean success = userService.updateUserStatus(id, status);
+        if (success) {
+            result.put("success", true);
+            result.put("message", "用户状态更新成功");
+        } else {
+            result.put("success", false);
+            result.put("message", "用户状态更新失败");
+        }
+        
+        return result;
+    }
+    
     // 获取当前登录用户的信息
     @GetMapping("/current")
     public ResponseEntity<User> getCurrentUser(HttpSession session) {

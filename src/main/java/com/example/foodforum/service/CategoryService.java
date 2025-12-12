@@ -24,4 +24,16 @@ public class CategoryService {
     public List<Category> findActiveCategories() {
         return categoryMapper.findActiveCategories();
     }
+    
+    public int insert(Category category) {
+        return categoryMapper.insert(category);
+    }
+    
+    public int update(Category category) {
+        return categoryMapper.update(category);
+    }
+    
+    public int deleteById(Integer id) {
+        return categoryMapper.deleteById(id);
+    }
 }

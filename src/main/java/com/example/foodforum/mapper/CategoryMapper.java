@@ -1,10 +1,8 @@
 package com.example.foodforum.mapper;
 
 import com.example.foodforum.entity.Category;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Results;
-import org.apache.ibatis.annotations.Result;
+import org.apache.ibatis.annotations.*;
+
 import java.util.List;
 
 @Mapper
@@ -42,4 +40,16 @@ public interface CategoryMapper {
         @Result(property = "createdAt", column = "created_at")
     })
     List<Category> findActiveCategories();
+    
+    @Insert("INSERT INTO categories(name, description, sort_order, status, created_at) " +
+            "VALUES(#{name}, #{description}, #{sortOrder}, #{status}, NOW())")
+    @Options(useGeneratedKeys = true, keyProperty = "id")
+    int insert(Category category);
+    
+    @Update("UPDATE categories SET name=#{name}, description=#{description}, " +
+            "sort_order=#{sortOrder}, status=#{status} WHERE id=#{id}")
+    int update(Category category);
+    
+    @Delete("DELETE FROM categories WHERE id = #{id}")
+    int deleteById(Integer id);
 }

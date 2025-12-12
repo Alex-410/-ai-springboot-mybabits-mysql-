@@ -27,6 +27,28 @@
             justify-content: space-between;
             align-items: center;
         }
+        .nav-links {
+            margin: 10px 0;
+            text-align: center;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+            font-weight: bold;
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.3);
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
+        .nav-links a.active {
+            background: rgba(255, 107, 107, 0.8);
+        }
         .logo {
             font-size: 1.5rem;
             font-weight: bold;
@@ -365,6 +387,36 @@
         .comment-input::placeholder {
             color: rgba(255, 255, 255, 0.7);
         }
+        .reply-form {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .reply-input {
+            width: 100%;
+            padding: 8px;
+            border-radius: 5px;
+            box-sizing: border-box;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            margin-bottom: 10px;
+        }
+        .reply-button {
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+        .reply-comment {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            padding: 0.5rem;
+            margin: 0.5rem 0 0.5rem 1rem;
+            border-radius: 8px;
+        }
         .hidden {
             display: none;
         }
@@ -487,6 +539,12 @@
             <button id="loginButton">登录</button>
             <button id="registerButton">注册</button>
         </div>
+    </div>
+    
+    <div class="nav-links" id="navLinks" style="text-align: center; margin: 10px 0; display: none;">
+        <a href="index.html">首页</a>
+        <a href="profile.html">个人资料</a>
+        <a href="comments.html">评论管理</a>
     </div>
 
     <div class="container">
@@ -619,6 +677,7 @@
                     document.getElementById('welcomeMessage').textContent = `欢迎, ${data.user.username}!`;
                     document.getElementById('authSection').classList.add('hidden');
                     document.getElementById('logoutButton').classList.remove('hidden');
+                    document.getElementById('navLinks').style.display = 'block';
                     
                     // 设置用户头像
                     const userAvatar = document.getElementById('userAvatar');
@@ -628,11 +687,15 @@
                         userAvatar.src = '/uploads/avatars/default.png';
                     }
                     userAvatar.classList.remove('hidden');
+                    
+                    // 为当前页面添加active类
+                    setActiveNavLink();
                 } else {
                     // 用户未登录
                     document.getElementById('welcomeMessage').textContent = '欢迎访问美食论坛';
                     document.getElementById('authSection').classList.remove('hidden');
                     document.getElementById('logoutButton').classList.add('hidden');
+                    document.getElementById('navLinks').style.display = 'none';
                     
                     // 隐藏用户头像
                     document.getElementById('userAvatar').classList.add('hidden');
@@ -640,6 +703,24 @@
             })
             .catch(error => {
                 console.error('Error:', error);
+            });
+        }
+        
+        // 设置当前页面的导航链接为active状态
+        function setActiveNavLink() {
+            const navLinks = document.querySelectorAll('#navLinks a');
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+            
+            navLinks.forEach(link => {
+                // 移除所有链接的active类
+                link.classList.remove('active');
+                
+                // 为当前页面的链接添加active类
+                if ((currentPage === 'index.html' && link.getAttribute('href') === 'index.html') ||
+                    (currentPage === '' && link.getAttribute('href') === 'index.html') ||
+                    (currentPage === link.getAttribute('href'))) {
+                    link.classList.add('active');
+                }
             });
         }
         
@@ -1073,10 +1154,35 @@
                 const commentsSection = document.getElementById(`comments-${postId}`);
                 commentsList.innerHTML = '';
                 
+                // 创建一个Map来存储所有评论，便于快速查找
+                const commentsMap = new Map();
                 pageResult.data.forEach(comment => {
+                    commentsMap.set(comment.id, comment);
+                });
+                
+                // 分离一级评论和回复评论
+                const topLevelComments = [];
+                const repliesMap = new Map(); // parentId -> [replies]
+                
+                pageResult.data.forEach(comment => {
+                    if (!comment.parentId || comment.parentId === 0) {
+                        // 一级评论
+                        topLevelComments.push(comment);
+                    } else {
+                        // 回复评论
+                        if (!repliesMap.has(comment.parentId)) {
+                            repliesMap.set(comment.parentId, []);
+                        }
+                        repliesMap.get(comment.parentId).push(comment);
+                    }
+                });
+                
+                // 渲染一级评论及其回复
+                topLevelComments.forEach(comment => {
                     // 创建评论元素
                     const commentElement = document.createElement('div');
                     commentElement.className = 'comment';
+                    commentElement.dataset.commentId = comment.id;
                     
                     // 构建评论内容HTML
                     let commentHTML = '';
@@ -1100,8 +1206,28 @@
                         <small>发表时间: ${comment.createdAt}</small>
                     `;
                     
+                    // 添加回复按钮和回复表单
+                    commentHTML += `
+                        <div class="comment-actions">
+                            <button onclick="showReplyForm(${comment.id})" class="btn-secondary">回复</button>
+                        </div>
+                        <div id="reply-form-${comment.id}" class="reply-form hidden">
+                            <textarea id="reply-content-${comment.id}" class="reply-input" placeholder="请输入回复内容..."></textarea>
+                            <button onclick="submitReply(${comment.id}, ${postId})" class="reply-button">提交回复</button>
+                            <button onclick="hideReplyForm(${comment.id})" class="btn-secondary reply-button">取消</button>
+                        </div>
+                    `;
+                    
                     commentElement.innerHTML = commentHTML;
                     commentsList.appendChild(commentElement);
+                    
+                    // 渲染该评论的回复
+                    if (repliesMap.has(comment.id)) {
+                        const replies = repliesMap.get(comment.id);
+                        replies.forEach(reply => {
+                            renderReply(commentElement, reply, postId);
+                        });
+                    }
                 });
                 
                 // 创建分页控件
@@ -1165,6 +1291,63 @@
             window.open(`/other.html?userId=${userId}`, '_blank');
         }
         
+        // 显示回复表单
+        function showReplyForm(commentId) {
+            document.getElementById(`reply-form-${commentId}`).classList.remove('hidden');
+        }
+        
+        // 隐藏回复表单
+        function hideReplyForm(commentId) {
+            document.getElementById(`reply-form-${commentId}`).classList.add('hidden');
+        }
+        
+        // 渲染回复评论
+        function renderReply(parentElement, reply, postId) {
+            // 创建回复元素
+            const replyElement = document.createElement('div');
+            replyElement.className = 'reply-comment';
+            replyElement.dataset.commentId = reply.id;
+            
+            // 构建回复内容HTML
+            let replyHTML = '';
+            
+            // 如果有用户头像和昵称信息，则显示
+            if (reply.userNickname && reply.userAvatar) {
+                replyHTML += `
+                    <div class="comment-header">
+                        <img src="${reply.userAvatar}" alt="用户头像" class="comment-avatar" onclick="goToUserProfile(${reply.userId})">
+                        <span class="comment-nickname" onclick="goToUserProfile(${reply.userId})">${reply.userNickname}</span>
+                    </div>
+                `;
+            } else {
+                // 如果没有用户信息，显示默认信息
+                replyHTML += `<small>用户ID: ${reply.userId}</small>`;
+            }
+            
+            // 添加回复内容和时间
+            replyHTML += `
+                <p>${reply.content}</p>
+                <small>发表时间: ${reply.createdAt}</small>
+            `;
+            
+            // 添加回复按钮和回复表单
+            replyHTML += `
+                <div class="comment-actions">
+                    <button onclick="showReplyForm(${reply.id})" class="btn-secondary">回复</button>
+                </div>
+                <div id="reply-form-${reply.id}" class="reply-form hidden">
+                    <textarea id="reply-content-${reply.id}" class="reply-input" placeholder="请输入回复内容..."></textarea>
+                    <button onclick="submitReply(${reply.id}, ${postId})" class="reply-button">提交回复</button>
+                    <button onclick="hideReplyForm(${reply.id})" class="btn-secondary reply-button">取消</button>
+                </div>
+            `;
+            
+            replyElement.innerHTML = replyHTML;
+            
+            // 将回复添加到父评论元素中
+            parentElement.appendChild(replyElement);
+        }
+        
         // 提交评论
         function submitComment(postId, content) {
             // 先检查用户是否已登录
@@ -1203,6 +1386,57 @@
                     });
                 } else {
                     showMessage('请先登录后再发表评论', 'error');
+                }
+            });
+        }
+        
+        // 提交回复
+        function submitReply(parentId, postId) {
+            const content = document.getElementById(`reply-content-${parentId}`).value;
+            if (!content.trim()) {
+                showMessage('回复内容不能为空', 'error');
+                return;
+            }
+            
+            // 先检查用户是否已登录
+            fetch('/api/auth/status')
+            .then(response => response.json())
+            .then(data => {
+                if (data.loggedIn) {
+                    const replyData = {
+                        postId: postId,
+                        userId: data.user.id,  // 添加用户ID
+                        parentId: parentId,
+                        content: content,
+                        status: 1
+                    };
+                    
+                    fetch('/api/comments', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(replyData)
+                    })
+                    .then(response => response.text())
+                    .then(data => {
+                        if (data === '评论创建成功') {
+                            showMessage('回复发表成功！', 'success');
+                            document.getElementById(`reply-form-${parentId}`).classList.add('hidden');
+                            document.getElementById(`reply-content-${parentId}`).value = '';
+                            
+                            // 重新加载评论
+                            loadComments(postId);
+                        } else {
+                            showMessage('回复发表失败: ' + data, 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showMessage('回复发表失败，请稍后重试', 'error');
+                    });
+                } else {
+                    showMessage('请先登录后再发表回复', 'error');
                 }
             });
         }

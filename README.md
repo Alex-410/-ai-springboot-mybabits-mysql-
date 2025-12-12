@@ -99,6 +99,12 @@ java -jar target/food-forum-0.0.1-SNAPSHOT.jar
 - PUT `/api/posts/{id}` - 更新帖子
 - DELETE `/api/posts/{id}` - 删除帖子
 
+### 收藏相关
+- POST `/api/favorites` - 添加收藏
+- DELETE `/api/favorites` - 取消收藏
+- GET `/api/favorites/status` - 查询收藏状态
+- GET `/api/favorites/user/{userId}` - 获取用户收藏列表
+
 ## 数据库表结构
 
 1. **users** - 用户表

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>收藏功能测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        pre {
+            background-color: #f1f1f1;
+            padding: 10px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>收藏功能测试页面</h1>
+    
+    <div class="form-group">
+        <label for="userId">用户ID:</label>
+        <input type="number" id="userId" value="1" min="1">
+    </div>
+    
+    <div class="form-group">
+        <label for="postId">帖子ID:</label>
+        <input type="number" id="postId" value="1" min="1">
+    </div>
+    
+    <button onclick="addFavorite()">添加收藏</button>
+    <button onclick="removeFavorite()">取消收藏</button>
+    <button onclick="checkFavoriteStatus()">检查收藏状态</button>
+    <button onclick="getUserFavorites()">获取用户收藏列表</button>
+    
+    <div id="result" class="result" style="display: none;"></div>
+    
+    <h2>API接口说明</h2>
+    <div>
+        <h3>1. 添加收藏</h3>
+        <p><strong>POST</strong> <code>/api/favorites</code></p>
+        <p>请求体: <code>{"userId": 1, "postId": 1}</code></p>
+        
+        <h3>2. 取消收藏</h3>
+        <p><strong>DELETE</strong> <code>/api/favorites?userId=1&postId=1</code></p>
+        
+        <h3>3. 检查收藏状态</h3>
+        <p><strong>GET</strong> <code>/api/favorites/status?userId=1&postId=1</code></p>
+        
+        <h3>4. 获取用户收藏列表</h3>
+        <p><strong>GET</strong> <code>/api/favorites/user/1?page=1&size=10</code></p>
+    </div>
+
+    <script>
+        function showMessage(content, isSuccess) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result ' + (isSuccess ? 'success' : 'error');
+            resultDiv.textContent = content;
+        }
+        
+        function addFavorite() {
+            const userId = document.getElementById('userId').value;
+            const postId = document.getElementById('postId').value;
+            
+            fetch('/api/favorites', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    userId: parseInt(userId),
+                    postId: parseInt(postId)
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                showMessage(JSON.stringify(data, null, 2), data.success);
+            })
+            .catch(error => {
+                showMessage('请求失败: ' + error.message, false);
+            });
+        }
+        
+        function removeFavorite() {
+            const userId = document.getElementById('userId').value;
+            const postId = document.getElementById('postId').value;
+            
+            fetch(`/api/favorites?userId=${userId}&postId=${postId}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                showMessage(JSON.stringify(data, null, 2), data.success);
+            })
+            .catch(error => {
+                showMessage('请求失败: ' + error.message, false);
+            });
+        }
+        
+        function checkFavoriteStatus() {
+            const userId = document.getElementById('userId').value;
+            const postId = document.getElementById('postId').value;
+            
+            fetch(`/api/favorites/status?userId=${userId}&postId=${postId}`)
+            .then(response => response.json())
+            .then(data => {
+                showMessage(JSON.stringify(data, null, 2), data.success);
+            })
+            .catch(error => {
+                showMessage('请求失败: ' + error.message, false);
+            });
+        }
+        
+        function getUserFavorites() {
+            const userId = document.getElementById('userId').value;
+            const page = 1;
+            const size = 10;
+            
+            fetch(`/api/favorites/user/${userId}?page=${page}&size=${size}`)
+            .then(response => response.json())
+            .then(data => {
+                showMessage(JSON.stringify(data, null, 2), data.success);
+            })
+            .catch(error => {
+                showMessage('请求失败: ' + error.message, false);
+            });
+        }
+    </script>
+</body>
+</html>
