@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的收藏 - 美食论坛</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('/uploads/rem1.gif');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .nav-links {
+            margin: 10px 0;
+            text-align: center;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+            font-weight: bold;
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: rgba(135, 206, 250, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            background: rgba(135, 206, 250, 0.5);
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
+        
+        .nav-links a.active {
+            background: rgba(135, 206, 250, 0.6);
+        }
+        
+        h1 {
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 107, 107, 0.8);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn:hover {
+            background: rgba(255, 107, 107, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-secondary {
+            background: rgba(108, 117, 125, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(108, 117, 125, 1);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        #authSection {
+            background: rgba(135, 206, 250, 0.3);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(135, 206, 250, 0.3);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+        }
+        
+        .posts {
+            display: grid;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .post {
+            background: rgba(135, 206, 250, 0.3);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1.5px solid rgba(135, 206, 250, 0.3);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            border-radius: 15px;
+            position: relative;
+        }
+        
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .user-nickname {
+            font-weight: bold;
+            color: #64b5f6;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        .post-category {
+            font-size: 0.8rem;
+            color: #FFD700;
+            background: rgba(255, 215, 0, 0.2);
+            padding: 2px 8px;
+            border-radius: 10px;
+            display: inline-block;
+            margin: 2px 0;
+        }
+        
+        .post-date {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .post-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .post-title {
+            margin: 0 0 0.5rem 0;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        .post-content {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 0.5rem;
+        }
+        
+        .post-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.5rem;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+        }
+        
+        .post-stats {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .no-data {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>美食论坛</h1>
+            <div class="user-info">
+                <span id="welcomeMessage">欢迎访问美食论坛</span>
+                <button id="logoutButton" class="btn-secondary hidden">注销</button>
+            </div>
+        </div>
+        
+        <div class="nav-links">
+            <a href="index.html">首页</a>
+            <a href="profile.html">个人资料</a>
+            <a href="comments.html">评论管理</a>
+            <a href="favorites.html" class="active">我的收藏</a>
+        </div>
+        
+        <div id="authSection">
+            <p>请先<a href="login.html">登录</a>以查看您的收藏。</p>
+        </div>
+        
+        <div id="favoritesSection" class="hidden">
+            <h2>我的收藏</h2>
+            
+            <div id="favoritesList" class="posts">
+                <div class="no-data">加载中...</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 页面加载时检查登录状态
+        window.onload = function() {
+            checkLoginStatus();
+        };
+        
+        // 检查登录状态
+        function checkLoginStatus() {
+            fetch('/api/auth/status')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.loggedIn) {
+                    // 用户已登录
+                    document.getElementById('welcomeMessage').textContent = `欢迎, ${data.user.username}!`;
+                    document.getElementById('authSection').classList.add('hidden');
+                    document.getElementById('favoritesSection').classList.remove('hidden');
+                    document.getElementById('logoutButton').classList.remove('hidden');
+                    
+                    // 加载用户收藏
+                    loadUserFavorites(data.user.id);
+                } else {
+                    // 用户未登录
+                    document.getElementById('welcomeMessage').textContent = '欢迎访问美食论坛';
+                    document.getElementById('authSection').classList.remove('hidden');
+                    document.getElementById('favoritesSection').classList.add('hidden');
+                    document.getElementById('logoutButton').classList.add('hidden');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('welcomeMessage').textContent = '欢迎访问美食论坛';
+                document.getElementById('authSection').classList.remove('hidden');
+                document.getElementById('favoritesSection').classList.add('hidden');
+                document.getElementById('logoutButton').classList.add('hidden');
+            });
+        }
+        
+        // 加载用户收藏
+        function loadUserFavorites(userId) {
+            fetch(`/api/favorites/user/${userId}`)
+            .then(response => response.json())
+            .then(data => {
+                const favoritesContainer = document.getElementById('favoritesList');
+                
+                if (!data.success || data.favorites.length === 0) {
+                    favoritesContainer.innerHTML = '<div class="no-data">您还没有收藏任何帖子</div>';
+                    return;
+                }
+                
+                // 获取收藏的帖子ID列表
+                const postIds = data.favorites.map(fav => fav.postId);
+                
+                if (postIds.length === 0) {
+                    favoritesContainer.innerHTML = '<div class="no-data">您还没有收藏任何帖子</div>';
+                    return;
+                }
+                
+                // 获取帖子详情
+                fetch(`/api/posts/batch?ids=${postIds.join(',')}`)
+                .then(response => response.json())
+                .then(posts => {
+                    if (!posts || posts.length === 0) {
+                        favoritesContainer.innerHTML = '<div class="no-data">您还没有收藏任何帖子</div>';
+                        return;
+                    }
+                    
+                    favoritesContainer.innerHTML = '';
+                    posts.forEach(postWithUser => {
+                        const post = postWithUser.post;
+                        const user = postWithUser.user;
+                        const categoryName = postWithUser.categoryName;
+                        
+                        // 格式化日期，只显示年月日
+                        const createdAt = new Date(post.createdAt);
+                        const formattedDate = `${createdAt.getFullYear()}-${String(createdAt.getMonth() + 1).padStart(2, '0')}-${String(createdAt.getDate()).padStart(2, '0')}`;
+                        
+                        // 创建图片显示HTML
+                        let imagesHTML = '';
+                        if (post.imageUrls && Array.isArray(post.imageUrls) && post.imageUrls.length > 0) {
+                            // 根据图片数量添加不同的CSS类
+                            let imagesClass = 'post-images';
+                            if (post.imageUrls.length === 1) {
+                                imagesClass += ' single-image';
+                            } else if (post.imageUrls.length === 2) {
+                                imagesClass += ' two-images';
+                            } else if (post.imageUrls.length === 4) {
+                                imagesClass += ' four-images';
+                            }
+                            
+                            imagesHTML = `<div class="${imagesClass}">`;
+                            post.imageUrls.forEach(url => {
+                                // 对于 GIF 图片，添加特定的样式类以保持动画效果
+                                const isGif = url.toLowerCase().endsWith('.gif');
+                                const imgClass = isGif ? 'post-image gif-image' : 'post-image';
+                                imagesHTML += `<img src="${url}" alt="帖子图片" class="${imgClass}">`;
+                            });
+                            imagesHTML += '</div>';
+                        }
+
+                        const postElement = document.createElement('div');
+                        postElement.className = 'post';
+                        postElement.innerHTML = `
+                            <div class="post-header">
+                                <div class="user-info">
+                                    <img src="${user && user.avatar ? user.avatar : '/uploads/avatars/default.png'}" alt="用户头像" class="user-avatar">
+                                    <div class="user-details">
+                                        <span class="user-nickname">${user ? user.nickname : '未知用户'}</span>
+                                        <span class="post-category">${categoryName || '未知分类'}</span>
+                                        <span class="post-date">${formattedDate}</span>
+                                    </div>
+                                </div>
+                                <div class="post-actions">
+                                    <button class="like-btn" data-post-id="${post.id}">
+                                        <span class="heart-icon">❤</span>
+                                        <span class="like-count">${post.likeCount || 0}</span>
+                                    </button>
+                                    <button class="favorite-btn" data-post-id="${post.id}">
+                                        <span class="star-icon">★</span>
+                                        <span class="favorite-count">${post.favoriteCount || 0}</span>
+                                    </button>
+                                    <button onclick="removeFromFavorites(${post.id})" class="btn-secondary" style="margin-left: 5px;">取消收藏</button>
+                                </div>
+                            </div>
+                            <h3 class="post-title">${post.title}</h3>
+                            <p class="post-content">${post.content}</p>
+                            ${imagesHTML}
+                            <div class="comments-section" id="comments-${post.id}">
+                                <h4>评论</h4>
+                                <div class="comments-list" id="comments-list-${post.id}"></div>
+                                <form class="comment-form" data-post-id="${post.id}">
+                                    <textarea class="comment-input" placeholder="写下你的评论..." required></textarea>
+                                    <button type="submit">发表评论</button>
+                                </form>
+                            </div>
+                        `;
+                        favoritesContainer.appendChild(postElement);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading posts:', error);
+                    favoritesContainer.innerHTML = '<div class="no-data">加载收藏帖子失败</div>';
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('favoritesList').innerHTML = '<div class="no-data">加载收藏失败</div>';
+            });
+        }
+        
+        // 取消收藏
+        function removeFromFavorites(postId) {
+            if (confirm('确定要取消收藏这篇帖子吗？')) {
+                fetch('/api/favorites', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ postId: postId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // 重新加载收藏列表
+                        checkLoginStatus();
+                    } else {
+                        alert('取消收藏失败: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('取消收藏失败，请稍后重试');
+                });
+            }
+        }
+        
+        // 注销按钮事件
+        document.getElementById('logoutButton').addEventListener('click', function() {
+            fetch('/api/auth/logout', {
+                method: 'POST',
+                credentials: 'same-origin'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // 注销成功，跳转到登录页面
+                    window.location.href = '/login.html';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>

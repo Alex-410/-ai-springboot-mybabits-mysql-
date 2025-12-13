@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户信息</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background-color: #ff6b6b;
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .profile-card {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .user-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 1rem;
+        }
+        .user-info {
+            margin-bottom: 1rem;
+        }
+        .user-nickname {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        .user-username {
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+        .user-gender {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        .user-signature {
+            color: #666;
+            font-style: italic;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            border-left: 3px solid #ff6b6b;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 2rem 0;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ff6b6b;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .section-title {
+            text-align: left;
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.5rem;
+            margin: 2rem 0 1rem 0;
+        }
+        .posts-list {
+            display: grid;
+            gap: 1rem;
+        }
+        .post {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: left;
+            border-width: 1.5px;
+        }
+        .post-title {
+            margin: 0 0 0.5rem 0;
+            color: #333;
+        }
+        .post-content {
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+        .post-meta {
+            color: #999;
+            font-size: 0.8rem;
+        }
+        .no-data {
+            text-align: center;
+            color: #999;
+            padding: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">美食论坛</div>
+        <div>
+            <button id="backButton">返回首页</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="profile-card">
+            <img id="userAvatar" class="user-avatar" src="/uploads/avatars/default.png" alt="用户头像">
+            <div class="user-info">
+                <div id="userNickname" class="user-nickname">加载中...</div>
+                <div id="userUsername" class="user-username">加载中...</div>
+                <div id="userGender" class="user-gender">加载中...</div>
+                <div id="userSignature" class="user-signature">加载中...</div>
+            </div>
+            <div class="stats">
+                <div class="stat-item">
+                    <div id="postCount" class="stat-number">0</div>
+                    <div class="stat-label">帖子</div>
+                </div>
+                <div class="stat-item">
+                    <div id="commentCount" class="stat-number">0</div>
+                    <div class="stat-label">评论</div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">最近帖子</h2>
+        <div id="userPosts" class="posts-list">
+            <div class="no-data">加载中...</div>
+        </div>
+    </div>
+
+    <script>
+        // 获取URL参数
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            var results = regex.exec(window.location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
+
+        // 页面加载完成后执行
+        window.onload = function() {
+            const userId = getUrlParameter('userId');
+            if (userId) {
+                loadUserInfo(userId);
+                loadUserPosts(userId);
+            } else {
+                document.getElementById('userNickname').textContent = '无效的用户ID';
+                document.getElementById('userUsername').textContent = '';
+                document.getElementById('userPosts').innerHTML = '<div class="no-data">无法加载用户信息</div>';
+            }
+            
+            // 返回首页按钮事件
+            document.getElementById('backButton').addEventListener('click', function() {
+                window.location.href = 'index.html';
+            });
+        };
+
+        // 加载用户信息
+        function loadUserInfo(userId) {
+            fetch(`/api/users/${userId}`)
+            .then(response => response.json())
+            .then(user => {
+                document.getElementById('userNickname').textContent = user.nickname || user.username;
+                document.getElementById('userUsername').textContent = '@' + user.username;
+                
+                // 显示性别信息
+                const genderElement = document.getElementById('userGender');
+                if (user.gender === 1) {
+                    genderElement.textContent = '性别：男';
+                } else if (user.gender === 2) {
+                    genderElement.textContent = '性别：女';
+                } else {
+                    genderElement.textContent = '性别：未知';
+                }
+                
+                // 显示个性签名
+                const signatureElement = document.getElementById('userSignature');
+                if (user.signature) {
+                    signatureElement.textContent = user.signature;
+                } else {
+                    signatureElement.textContent = '这个用户很懒，没有留下个性签名';
+                }
+                
+                // 设置用户头像
+                const userAvatar = document.getElementById('userAvatar');
+                if (user.avatar) {
+                    userAvatar.src = user.avatar;
+                } else {
+                    userAvatar.src = '/uploads/avatars/default.png';
+                }
+                
+                // 获取评论数量（这里简化处理，实际应该由后端提供）
+                loadUserCommentCount(userId);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('userNickname').textContent = '用户不存在';
+                document.getElementById('userUsername').textContent = '';
+                document.getElementById('userGender').textContent = '';
+                document.getElementById('userSignature').textContent = '';
+            });
+        }
+
+        // 加载用户评论数量（模拟实现）
+        function loadUserCommentCount(userId) {
+            fetch(`/api/comments/user/${userId}`)
+            .then(response => response.json())
+            .then(comments => {
+                document.getElementById('commentCount').textContent = comments.length;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('commentCount').textContent = '0';
+            });
+        }
+
+        // 加载用户帖子
+        function loadUserPosts(userId) {
+            fetch(`/api/posts/user/${userId}`)
+            .then(response => response.json())
+            .then(posts => {
+                const postsContainer = document.getElementById('userPosts');
+                
+                if (posts.length === 0) {
+                    postsContainer.innerHTML = '<div class="no-data">该用户还没有发布任何帖子</div>';
+                    document.getElementById('postCount').textContent = '0';
+                    return;
+                }
+                
+                document.getElementById('postCount').textContent = posts.length;
+                
+                postsContainer.innerHTML = '';
+                posts.forEach(post => {
+                    const postElement = document.createElement('div');
+                    postElement.className = 'post';
+                    postElement.innerHTML = `
+                        <h3 class="post-title">${post.title}</h3>
+                        <p class="post-content">${post.content.substring(0, 100)}${post.content.length > 100 ? '...' : ''}</p>
+                        <div class="post-meta">
+                            发布于 ${post.createdAt}
+                        </div>
+                    `;
+                    postsContainer.appendChild(postElement);
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('userPosts').innerHTML = '<div class="no-data">无法加载用户帖子</div>';
+            });
+        }
+    </script>
+    <script src="https://files.cnblogs.com/files/quaint/sakuraPlus.js"></script>
+</body>
+</html>
