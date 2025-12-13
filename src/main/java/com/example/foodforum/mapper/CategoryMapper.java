@@ -41,6 +41,17 @@ public interface CategoryMapper {
     })
     List<Category> findActiveCategories();
     
+    @Select("SELECT * FROM categories WHERE name LIKE CONCAT('%',#{keyword},'%')")
+    @Results({
+        @Result(property = "id", column = "id"),
+        @Result(property = "name", column = "name"),
+        @Result(property = "description", column = "description"),
+        @Result(property = "sortOrder", column = "sort_order"),
+        @Result(property = "status", column = "status"),
+        @Result(property = "createdAt", column = "created_at")
+    })
+    List<Category> searchByKeyword(@Param("keyword") String keyword);
+    
     @Insert("INSERT INTO categories(name, description, sort_order, status, created_at) " +
             "VALUES(#{name}, #{description}, #{sortOrder}, #{status}, NOW())")
     @Options(useGeneratedKeys = true, keyProperty = "id")

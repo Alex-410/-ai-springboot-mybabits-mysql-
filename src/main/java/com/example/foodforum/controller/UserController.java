@@ -25,8 +25,12 @@ public class UserController {
     }
     
     @GetMapping
-    public List<User> getAllUsers() {
-        return userService.findAll();
+    public List<User> getAllUsers(@RequestParam(required = false) String keyword) {
+        if (keyword != null && !keyword.isEmpty()) {
+            return userService.searchByKeyword(keyword);
+        } else {
+            return userService.findAll();
+        }
     }
     
     @PostMapping
@@ -41,14 +45,18 @@ public class UserController {
     
     // 管理员更新用户信息
     @PutMapping("/{id}")
-    public String updateUser(@PathVariable Long id, @RequestBody User user) {
+    public Map<String, Object> updateUser(@PathVariable Long id, @RequestBody User user) {
+        Map<String, Object> result = new HashMap<>();
         user.setId(id);
-        int result = userService.update(user);
-        if (result > 0) {
-            return "用户更新成功";
+        int updateResult = userService.update(user);
+        if (updateResult > 0) {
+            result.put("success", true);
+            result.put("message", "用户更新成功");
         } else {
-            return "用户更新失败";
+            result.put("success", false);
+            result.put("message", "用户更新失败");
         }
+        return result;
     }
     
     @DeleteMapping("/{id}")

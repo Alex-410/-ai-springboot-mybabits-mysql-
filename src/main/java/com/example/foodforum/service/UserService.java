@@ -26,6 +26,10 @@ public class UserService {
         return userMapper.findAll();
     }
     
+    public List<User> searchByKeyword(String keyword) {
+        return userMapper.searchByKeyword(keyword);
+    }
+    
     public int insert(User user) {
         return userMapper.insert(user);
     }

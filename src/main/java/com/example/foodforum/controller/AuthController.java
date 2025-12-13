@@ -86,6 +86,13 @@ public class AuthController {
             return result;
         }
         
+        // 检查用户状态
+        if (user.getStatus() == 0) {
+            result.put("success", false);
+            result.put("message", "账户状态异常无法登录");
+            return result;
+        }
+        
         // 登录成功，将用户信息保存到session中
         session.setAttribute("user", user);
         session.setAttribute("userId", user.getId());

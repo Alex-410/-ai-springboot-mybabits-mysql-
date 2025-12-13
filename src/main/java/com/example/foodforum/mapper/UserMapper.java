@@ -17,6 +17,9 @@ public interface UserMapper {
     @Select("SELECT * FROM users")
     List<User> findAll();
     
+    @Select("SELECT * FROM users WHERE username LIKE CONCAT('%',#{keyword},'%') OR nickname LIKE CONCAT('%',#{keyword},'%')")
+    List<User> searchByKeyword(@Param("keyword") String keyword);
+    
     @Insert("INSERT INTO users(username, email, password, nickname, avatar, gender, birthday, signature, phone, status) " +
             "VALUES(#{username}, #{email}, #{password}, #{nickname}, #{avatar}, #{gender}, #{birthday}, #{signature}, #{phone}, #{status})")
     @Options(useGeneratedKeys = true, keyProperty = "id")

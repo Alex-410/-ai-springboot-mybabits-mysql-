@@ -17,6 +17,10 @@ public class CategoryService {
         return categoryMapper.findAll();
     }
     
+    public List<Category> searchByKeyword(String keyword) {
+        return categoryMapper.searchByKeyword(keyword);
+    }
+    
     public Category findById(Integer id) {
         return categoryMapper.findById(id);
     }

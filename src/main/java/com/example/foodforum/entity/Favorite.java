@@ -49,14 +49,4 @@ public class Favorite {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
-
-    @Override
-    public String toString() {
-        return "Favorite{" +
-                "id=" + id +
-                ", userId=" + userId +
-                ", postId=" + postId +
-                ", createdAt=" + createdAt +
-                '}';
-    }
 }

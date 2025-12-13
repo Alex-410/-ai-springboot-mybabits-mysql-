@@ -48,6 +48,10 @@ public class CommentService {
         return commentMapper.findAll();
     }
     
+    public List<Comment> searchByKeyword(String keyword) {
+        return commentMapper.searchByKeyword(keyword);
+    }
+    
     public int insert(Comment comment) {
         return commentMapper.insert(comment);
     }

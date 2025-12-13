@@ -134,6 +134,41 @@ public class PostService {
         return posts;
     }
     
+    public List<Post> findByIds(List<Long> ids) {
+        List<Post> posts = postMapper.findByIds(ids);
+        // 将images字段的JSON字符串转换为imageUrls列表
+        for (Post post : posts) {
+            if (post.getImages() != null && !post.getImages().isEmpty()) {
+                try {
+                    List<String> imageUrls = objectMapper.readValue(post.getImages(), new TypeReference<List<String>>() {});
+                    post.setImageUrls(imageUrls);
+                } catch (JsonProcessingException e) {
+                    // 如果转换失败，设置为空列表
+                    post.setImageUrls(new ArrayList<>());
+                }
+            }
+        }
+        return posts;
+    }
+    
+    public List<PostWithUserDto> findByIdsWithDetails(List<Long> ids) {
+        List<Post> posts = findByIds(ids);
+        
+        // 获取所有分类信息并建立ID到名称的映射
+        List<Category> categories = categoryService.findAll();
+        Map<Integer, String> categoryMap = new HashMap<>();
+        for (Category category : categories) {
+            categoryMap.put(category.getId(), category.getName());
+        }
+        
+        // 为每个帖子获取用户信息和分类名称
+        return posts.stream().map(post -> {
+            User user = userMapper.findById(post.getUserId());
+            String categoryName = categoryMap.getOrDefault(post.getCategoryId(), "未知分类");
+            return new PostWithUserDto(post, user, categoryName);
+        }).collect(Collectors.toList());
+    }
+    
     public int insert(Post post) {
         // 将imageUrls列表转换为JSON字符串存储到images字段
         if (post.getImageUrls() != null && !post.getImageUrls().isEmpty()) {

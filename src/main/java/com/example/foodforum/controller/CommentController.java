@@ -75,8 +75,12 @@ public class CommentController {
      * 获取所有评论
      */
     @GetMapping
-    public List<Comment> getAllComments() {
-        return commentService.findAll();
+    public List<Comment> getAllComments(@RequestParam(required = false) String keyword) {
+        if (keyword != null && !keyword.isEmpty()) {
+            return commentService.searchByKeyword(keyword);
+        } else {
+            return commentService.findAll();
+        }
     }
     
     /**

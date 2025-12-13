@@ -542,10 +542,11 @@
     </div>
     
     <div class="nav-links" id="navLinks" style="text-align: center; margin: 10px 0; display: none;">
-        <a href="index.html">首页</a>
-        <a href="profile.html">个人资料</a>
-        <a href="comments.html">评论管理</a>
-    </div>
+            <a href="index.html">首页</a>
+            <a href="profile.html">个人资料</a>
+            <a href="comments.html">评论管理</a>
+            <a href="favorites.html">我的收藏</a>
+        </div>
 
     <div class="container">
         <div class="search-section">
@@ -919,22 +920,28 @@
                         const postId = this.getAttribute('data-post-id');
                         const favoriteCountEl = this.querySelector('.favorite-count');
                         
-                        // 发送请求到后端更新收藏数
-                        fetch(`/api/posts/${postId}/favorite`, { method: 'POST' })
-                        .then(response => response.text())
-                        .then(result => {
-                            console.log(result);
-                            // 更新前端显示的收藏数
-                            let count = parseInt(favoriteCountEl.textContent) || 0;
-                            count++;
-                            favoriteCountEl.textContent = count;
+                        // 使用新的收藏API
+                        fetch('/api/favorites', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ postId: postId })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // 更新前端显示的收藏数
+                                favoriteCountEl.textContent = data.favoriteCount || 0;
+                            } else {
+                                console.error('收藏失败:', data.message);
+                                // 显示错误消息给用户
+                                alert(data.message);
+                            }
                         })
                         .catch(error => {
                             console.error('Error:', error);
-                            // 即使后端出错，也更新前端显示（用户体验考虑）
-                            let count = parseInt(favoriteCountEl.textContent) || 0;
-                            count++;
-                            favoriteCountEl.textContent = count;
+                            alert('收藏操作失败，请稍后重试');
                         });
                     });
                     
@@ -1100,22 +1107,28 @@
                         const postId = this.getAttribute('data-post-id');
                         const favoriteCountEl = this.querySelector('.favorite-count');
                         
-                        // 发送请求到后端更新收藏数
-                        fetch(`/api/posts/${postId}/favorite`, { method: 'POST' })
-                        .then(response => response.text())
-                        .then(result => {
-                            console.log(result);
-                            // 更新前端显示的收藏数
-                            let count = parseInt(favoriteCountEl.textContent) || 0;
-                            count++;
-                            favoriteCountEl.textContent = count;
+                        // 使用新的收藏API
+                        fetch('/api/favorites', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ postId: postId })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // 更新前端显示的收藏数
+                                favoriteCountEl.textContent = data.favoriteCount || 0;
+                            } else {
+                                console.error('收藏失败:', data.message);
+                                // 显示错误消息给用户
+                                alert(data.message);
+                            }
                         })
                         .catch(error => {
                             console.error('Error:', error);
-                            // 即使后端出错，也更新前端显示（用户体验考虑）
-                            let count = parseInt(favoriteCountEl.textContent) || 0;
-                            count++;
-                            favoriteCountEl.textContent = count;
+                            alert('收藏操作失败，请稍后重试');
                         });
                     });
                     

@@ -22,8 +22,12 @@ public class PostController {
     }
     
     @GetMapping
-    public List<Post> getAllPosts() {
-        return postService.findAll();
+    public List<Post> getAllPosts(@RequestParam(required = false) String keyword) {
+        if (keyword != null && !keyword.isEmpty()) {
+            return postService.searchByKeyword(keyword);
+        } else {
+            return postService.findAll();
+        }
     }
     
     @GetMapping("/page")
@@ -126,5 +130,14 @@ public class PostController {
         } else {
             return "收藏失败";
         }
+    }
+    
+    @GetMapping("/batch")
+    public List<PostWithUserDto> getPostsByIds(@RequestParam String ids) {
+        // Convert the comma-separated string to a list of Long IDs
+        List<Long> postIds = java.util.Arrays.stream(ids.split(","))
+                .map(Long::parseLong)
+                .collect(java.util.stream.Collectors.toList());
+        return postService.findByIdsWithDetails(postIds);
     }
 }

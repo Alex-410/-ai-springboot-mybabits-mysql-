@@ -427,7 +427,11 @@
                 <div class="card">
                     <div class="card-header">
                         用户列表
-                        <button class="btn btn-primary" style="float: right;" onclick="loadUsers()">刷新</button>
+                        <div style="float: right; display: flex; gap: 10px;">
+                            <input type="text" id="userSearchInput" placeholder="搜索用户名或昵称" style="padding: 5px; border: 1px solid #ddd; border-radius: 4px;">
+                            <button class="btn btn-primary" onclick="searchUsers()">搜索</button>
+                            <button class="btn btn-primary" onclick="loadUsers()">刷新</button>
+                        </div>
                     </div>
                     <table id="usersTable">
                         <thead>
@@ -453,7 +457,11 @@
                 <div class="card">
                     <div class="card-header">
                         评论列表
-                        <button class="btn btn-primary" style="float: right;" onclick="loadComments()">刷新</button>
+                        <div style="float: right; display: flex; gap: 10px;">
+                            <input type="text" id="commentSearchInput" placeholder="搜索评论内容" style="padding: 5px; border: 1px solid #ddd; border-radius: 4px;">
+                            <button class="btn btn-primary" onclick="searchComments()">搜索</button>
+                            <button class="btn btn-primary" onclick="loadComments()">刷新</button>
+                        </div>
                     </div>
                     <table id="commentsTable">
                         <thead>
@@ -463,7 +471,6 @@
                                 <th>帖子ID</th>
                                 <th>内容</th>
                                 <th>时间</th>
-                                <th>状态</th>
                                 <th>操作</th>
                             </tr>
                         </thead>
@@ -480,7 +487,12 @@
                 <div class="card">
                     <div class="card-header">
                         分类列表
-                        <button class="btn btn-primary" style="float: right;" onclick="loadCategories()">刷新</button>
+                        <div style="float: right; display: flex; gap: 10px;">
+                            <input type="text" id="categorySearchInput" placeholder="搜索分类名称" style="padding: 5px; border: 1px solid #ddd; border-radius: 4px;">
+                            <button class="btn btn-primary" onclick="searchCategories()">搜索</button>
+                            <button class="btn btn-primary" onclick="loadCategories()">刷新</button>
+                            <button class="btn btn-primary" onclick="showAddCategoryModal()">添加分类</button>
+                        </div>
                     </div>
                     <table id="categoriesTable">
                         <thead>
@@ -498,13 +510,58 @@
                 </div>
             </div>
 
+            <!-- 添加分类模态框 -->
+            <div id="addCategoryModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="closeAddCategoryModal()">&times;</span>
+                    <h2>添加分类</h2>
+                    <form id="addCategoryForm">
+                        <div class="form-group">
+                            <label for="categoryName">分类名称:</label>
+                            <input type="text" id="categoryName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="categoryDescription">分类描述:</label>
+                            <textarea id="categoryDescription"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">保存</button>
+                        <button type="button" class="btn" onclick="closeAddCategoryModal()">取消</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 编辑分类模态框 -->
+            <div id="editCategoryModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="closeEditCategoryModal()">&times;</span>
+                    <h2>编辑分类</h2>
+                    <form id="editCategoryForm">
+                        <input type="hidden" id="editCategoryId">
+                        <div class="form-group">
+                            <label for="editCategoryName">分类名称:</label>
+                            <input type="text" id="editCategoryName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editCategoryDescription">分类描述:</label>
+                            <textarea id="editCategoryDescription"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">保存</button>
+                        <button type="button" class="btn" onclick="closeEditCategoryModal()">取消</button>
+                    </form>
+                </div>
+            </div>
+
             <!-- 帖子管理 -->
             <div id="posts-section" class="hidden">
                 <h2 class="section-title">帖子管理</h2>
                 <div class="card">
                     <div class="card-header">
                         帖子列表
-                        <button class="btn btn-primary" style="float: right;" onclick="loadPosts()">刷新</button>
+                        <div style="float: right; display: flex; gap: 10px;">
+                            <input type="text" id="postSearchInput" placeholder="搜索帖子标题" style="padding: 5px; border: 1px solid #ddd; border-radius: 4px;">
+                            <button class="btn btn-primary" onclick="searchPosts()">搜索</button>
+                            <button class="btn btn-primary" onclick="loadPosts()">刷新</button>
+                        </div>
                     </div>
                     <table id="postsTable">
                         <thead>
@@ -514,7 +571,6 @@
                                 <th>作者ID</th>
                                 <th>分类ID</th>
                                 <th>时间</th>
-                                <th>状态</th>
                                 <th>操作</th>
                             </tr>
                         </thead>
@@ -539,6 +595,8 @@
                     </div>
                 </div>
             </div>
+
+
         </div>
     </div>
 
@@ -581,21 +639,21 @@
     <script>
         // 检查管理员登录状态
         function checkAdminStatus() {
-            fetch('/api/admin/status')
-            .then(response => response.json())
-            .then(data => {
-                if (!data.loggedIn) {
+            return fetch('/api/admin/status')
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.loggedIn) {
+                        window.location.href = '/admin.html';
+                    } else {
+                        document.getElementById('adminName').textContent = data.user.nickname || data.user.username;
+                        // 加载统计数据
+                        loadStats();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
                     window.location.href = '/admin.html';
-                } else {
-                    document.getElementById('adminName').textContent = data.user.nickname || data.user.username;
-                    // 加载统计数据
-                    loadStats();
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                window.location.href = '/admin.html';
-            });
+                });
         }
 
         // 管理员登出
@@ -644,6 +702,9 @@
                 case 'posts':
                     loadPosts();
                     break;
+                case 'favorites':
+                    loadFavorites();
+                    break;
                 case 'uploads':
                     loadUploads();
                     break;
@@ -671,8 +732,12 @@
         }
 
         // 加载用户列表
-        function loadUsers() {
-            fetch('/api/users')
+        function loadUsers(keyword) {
+            let url = '/api/users';
+            if (keyword) {
+                url += `?keyword=${encodeURIComponent(keyword)}`;
+            }
+            fetch(url)
             .then(response => response.json())
             .then(data => {
                 const tbody = document.getElementById('usersTableBody');
@@ -705,6 +770,12 @@
                 console.error('Error:', error);
                 showMessage('加载用户数据失败', 'error');
             });
+        }
+        
+        // 搜索用户
+        function searchUsers() {
+            const keyword = document.getElementById('userSearchInput').value.trim();
+            loadUsers(keyword);
         }
         
         // 更新用户状态
@@ -812,8 +883,12 @@
         }
 
         // 加载评论列表
-        function loadComments() {
-            fetch('/api/comments')
+        function loadComments(keyword) {
+            let url = '/api/comments';
+            if (keyword) {
+                url += `?keyword=${encodeURIComponent(keyword)}`;
+            }
+            fetch(url)
             .then(response => response.json())
             .then(data => {
                 const tbody = document.getElementById('commentsTableBody');
@@ -828,13 +903,7 @@
                         <td>${comment.content}</td>
                         <td>${new Date(comment.createdAt).toLocaleString()}</td>
                         <td>
-                            <select onchange="updateCommentStatus(${comment.id}, this.value)" ${comment.status === 2 ? 'disabled' : ''}>
-                                <option value="1" ${comment.status === 1 ? 'selected' : ''}>正常</option>
-                                <option value="2" ${comment.status === 2 ? 'selected' : ''}>删除</option>
-                            </select>
-                        </td>
-                        <td>
-                            <button class="btn btn-danger" onclick="deleteComment(${comment.id})">删除</button>
+                            <button class="btn btn-danger" onclick="deleteComment(${comment.id})")>删除</button>
                         </td>
                     `;
                 });
@@ -847,28 +916,10 @@
             });
         }
         
-        // 更新评论状态
-        function updateCommentStatus(commentId, status) {
-            fetch(`/api/comments/${commentId}/status`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ status: parseInt(status) })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showMessage('评论状态更新成功', 'success');
-                    loadComments(); // 重新加载评论列表
-                } else {
-                    showMessage('评论状态更新失败: ' + data.message, 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showMessage('评论状态更新失败', 'error');
-            });
+        // 搜索评论
+        function searchComments() {
+            const keyword = document.getElementById('commentSearchInput').value.trim();
+            loadComments(keyword);
         }
         
         // 删除评论
@@ -889,45 +940,15 @@
             }
         }
 
-        // 编辑分类
-        function editCategory(categoryId) {
-            // 这里可以实现分类编辑功能
-            alert('编辑分类功能待实现，分类ID: ' + categoryId);
-        }
-
-        // 删除分类
-        function deleteCategory(categoryId) {
-            if (confirm('确定要删除这个分类吗？')) {
-                // 这里可以实现分类删除功能
-                alert('删除分类功能待实现，分类ID: ' + categoryId);
-            }
-        }
-
-        // 更新帖子状态
-        function updatePostStatus(postId, status) {
-            // 这里可以实现更新帖子状态功能
-            console.log('更新帖子状态，帖子ID: ' + postId + ', 状态: ' + status);
-        }
-
-        // 编辑帖子
-        function editPost(postId) {
-            // 这里可以实现帖子编辑功能
-            alert('编辑帖子功能待实现，帖子ID: ' + postId);
-        }
-
-        // 删除帖子
-        function deletePost(postId) {
-            if (confirm('确定要删除这个帖子吗？')) {
-                // 这里可以实现帖子删除功能
-                alert('删除帖子功能待实现，帖子ID: ' + postId);
-            }
-        }
-
         // 加载分类列表
-        function loadCategories() {
+        function loadCategories(keyword) {
             showMessage('正在加载分类数据...', 'info');
+            let url = '/api/categories';
+            if (keyword) {
+                url += `?keyword=${encodeURIComponent(keyword)}`;
+            }
             
-            fetch('/api/categories')
+            fetch(url)
             .then(response => response.json())
             .then(data => {
                 const tbody = document.getElementById('categoriesTableBody');
@@ -954,11 +975,172 @@
             });
         }
 
-        // 加载帖子列表
-        function loadPosts() {
-            showMessage('正在加载帖子数据...', 'info');
+        // 搜索分类
+        function searchCategories() {
+            const keyword = document.getElementById('categorySearchInput').value.trim();
+            loadCategories(keyword);
+        }
+
+        // 显示添加分类模态框
+        function showAddCategoryModal() {
+            document.getElementById('addCategoryModal').style.display = 'block';
+        }
+
+        // 关闭添加分类模态框
+        function closeAddCategoryModal() {
+            document.getElementById('addCategoryModal').style.display = 'none';
+            // 重置表单
+            document.getElementById('addCategoryForm').reset();
+        }
+
+        // 显示编辑分类模态框
+        function editCategory(categoryId) {
+            // 获取分类信息
+            fetch(`/api/categories/${categoryId}`)
+            .then(response => response.json())
+            .then(category => {
+                // 填充表单
+                document.getElementById('editCategoryId').value = category.id;
+                document.getElementById('editCategoryName').value = category.name;
+                document.getElementById('editCategoryDescription').value = category.description || '';
+                // 显示模态框
+                document.getElementById('editCategoryModal').style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('获取分类信息失败', 'error');
+            });
+        }
+
+        // 关闭编辑分类模态框
+        function closeEditCategoryModal() {
+            document.getElementById('editCategoryModal').style.display = 'none';
+        }
+
+        // 添加分类
+        function addCategory() {
+            const name = document.getElementById('categoryName').value.trim();
+            const description = document.getElementById('categoryDescription').value.trim();
             
-            fetch('/api/posts')
+            if (!name) {
+                showMessage('分类名称不能为空', 'error');
+                return;
+            }
+            
+            fetch('/api/categories', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, description })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('分类添加成功', 'success');
+                    closeAddCategoryModal();
+                    loadCategories();
+                } else {
+                    showMessage('分类添加失败: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('分类添加失败', 'error');
+            });
+        }
+
+        // 更新分类
+        function updateCategory() {
+            const id = document.getElementById('editCategoryId').value;
+            const name = document.getElementById('editCategoryName').value.trim();
+            const description = document.getElementById('editCategoryDescription').value.trim();
+            
+            if (!name) {
+                showMessage('分类名称不能为空', 'error');
+                return;
+            }
+            
+            fetch(`/api/categories/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, description })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('分类更新成功', 'success');
+                    closeEditCategoryModal();
+                    loadCategories();
+                } else {
+                    showMessage('分类更新失败: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('分类更新失败', 'error');
+            });
+        }
+
+        // 删除分类
+        function deleteCategory(categoryId) {
+            if (confirm('确定要删除这个分类吗？')) {
+                fetch(`/api/categories/${categoryId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showMessage('分类删除成功', 'success');
+                        loadCategories();
+                    } else {
+                        showMessage('分类删除失败: ' + data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showMessage('分类删除失败', 'error');
+                });
+            }
+        }
+
+        // 更新帖子状态
+        function updatePostStatus(postId, status) {
+            // 这里可以实现更新帖子状态功能
+            console.log('更新帖子状态，帖子ID: ' + postId + ', 状态: ' + status);
+        }
+
+        // 编辑帖子
+        function editPost(postId) {
+            // 这里可以实现帖子编辑功能
+            alert('编辑帖子功能待实现，帖子ID: ' + postId);
+        }
+
+        // 删除帖子
+        function deletePost(postId) {
+            if (confirm('确定要删除这个帖子吗？')) {
+                // 这里可以实现帖子删除功能
+                alert('删除帖子功能待实现，帖子ID: ' + postId);
+            }
+        }
+
+        // 搜索帖子
+        function searchPosts() {
+            const keyword = document.getElementById('postSearchInput').value.trim();
+            loadPosts(keyword);
+        }
+
+        // 加载帖子列表
+        function loadPosts(keyword) {
+            showMessage('正在加载帖子数据...', 'info');
+            let url = '/api/posts';
+            if (keyword) {
+                url += `?keyword=${encodeURIComponent(keyword)}`;
+            }
+            
+            fetch(url)
             .then(response => response.json())
             .then(data => {
                 const tbody = document.getElementById('postsTableBody');
@@ -973,15 +1155,8 @@
                         <td>${post.categoryId}</td>
                         <td>${new Date(post.createdAt).toLocaleString()}</td>
                         <td>
-                            <select onchange="updatePostStatus(${post.id}, this.value)" data-post-status="${post.status}">
-                                <option value="1" ${post.status === 1 ? 'selected' : ''}>已发布</option>
-                                <option value="0" ${post.status === 0 ? 'selected' : ''}>草稿</option>
-                                <option value="2" ${post.status === 2 ? 'selected' : ''}>已删除</option>
-                            </select>
-                        </td>
-                        <td>
-                            <button class="btn btn-primary" onclick="editPost(${post.id})">编辑</button>
-                            <button class="btn btn-danger" onclick="deletePost(${post.id})">删除</button>
+                            <button class="btn btn-primary" onclick="editPost(${post.id})")>编辑</button>
+                            <button class="btn btn-danger" onclick="deletePost(${post.id})")>删除</button>
                         </td>
                     `;
                 });
@@ -997,8 +1172,227 @@
         // 加载上传文件列表
         function loadUploads() {
             showMessage('正在加载文件数据...', 'info');
-            // 这里应该调用API获取文件数据
-            showMessage('文件数据加载完成', 'success');
+            
+            // 调用API获取文件列表
+            fetch('/api/files')
+                .then(response => response.json())
+                .then(data => {
+                    const fileList = document.getElementById('fileList');
+                    fileList.innerHTML = '';
+                    
+                    data.forEach(file => {
+                        const fileItem = document.createElement('div');
+                        fileItem.className = 'file-item';
+                        fileItem.innerHTML = `
+                            <div>
+                                <strong>${file.name}</strong>
+                                <small style="margin-left: 10px; color: #666;">${formatFileSize(file.size)} - ${new Date(file.uploadTime).toLocaleString()}</small>
+                            </div>
+                            <div class="file-actions">
+                                <a href="${file.url}" target="_blank" class="btn btn-primary" style="padding: 4px 8px; font-size: 12px;">查看</a>
+                                <button class="btn btn-danger" style="padding: 4px 8px; font-size: 12px;" onclick="deleteFile('${file.name}')">删除</button>
+                            </div>
+                        `;
+                        fileList.appendChild(fileItem);
+                    });
+                    
+                    showMessage('文件数据加载完成', 'success');
+                })
+                .catch(error => {
+                    console.error('Error loading files:', error);
+                    showMessage('加载文件数据失败', 'error');
+                });
+        }
+        
+        // 格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        // 删除文件
+        function deleteFile(filename) {
+            if (confirm('确定要删除文件 "' + filename + '" 吗？')) {
+                fetch('/api/files/' + filename, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showMessage('文件删除成功', 'success');
+                        loadUploads(); // 重新加载文件列表
+                    } else {
+                        showMessage('文件删除失败: ' + data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting file:', error);
+                    showMessage('文件删除失败', 'error');
+                });
+            }
+        }
+        
+        // 文件上传处理
+        document.addEventListener('DOMContentLoaded', function() {
+            // 文件上传处理
+            const fileInput = document.getElementById('fileInput');
+            const uploadArea = document.getElementById('uploadArea');
+            
+            // 文件选择事件
+            fileInput.addEventListener('change', function(e) {
+                handleFileUpload(e.target.files);
+            });
+            
+            // 拖拽上传处理
+            let dragCounter = 0;
+            
+            uploadArea.addEventListener('dragenter', function(e) {
+                e.preventDefault();
+                dragCounter++;
+                uploadArea.classList.add('dragover');
+            });
+            
+            uploadArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                dragCounter--;
+                if (dragCounter === 0) {
+                    uploadArea.classList.remove('dragover');
+                }
+            });
+            
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+            });
+            
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                handleFileUpload(e.dataTransfer.files);
+            });
+        });
+        
+        // 处理文件上传
+        function handleFileUpload(files) {
+            const formData = new FormData();
+            
+            // 添加所有文件到FormData
+            for (let i = 0; i < files.length; i++) {
+                formData.append('files', files[i]);
+            }
+            
+            showMessage('正在上传文件...', 'info');
+            
+            fetch('/api/files', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('文件上传成功', 'success');
+                    loadUploads(); // 重新加载文件列表
+                } else {
+                    showMessage('文件上传失败: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error uploading files:', error);
+                showMessage('文件上传失败', 'error');
+            });
+        }
+
+        // 获取当前用户信息
+        function getCurrentUser() {
+            return fetch('/api/auth/status')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.loggedIn) {
+                        return data.user.id;
+                    } else {
+                        throw new Error('用户未登录');
+                    }
+                });
+        }
+
+        // 加载收藏列表
+        function loadFavorites() {
+            getCurrentUser().then(currentUserId => {
+                fetch('/api/favorites/user/' + currentUserId)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.success) {
+                            showMessage('加载收藏数据失败: ' + data.message, 'error');
+                            return;
+                        }
+                        
+                        const tbody = document.getElementById('favoritesTableBody');
+                        tbody.innerHTML = '';
+                        
+                        // 获取收藏的帖子详细信息
+                        const favoritePosts = [];
+                        const fetchPromises = data.favorites.map(favorite => {
+                            return fetch('/api/posts/' + favorite.postId)
+                                .then(response => response.json())
+                                .then(post => {
+                                    favoritePosts.push({
+                                        favorite: favorite,
+                                        post: post
+                                    });
+                                })
+                                .catch(error => {
+                                    console.error('Error fetching post:', error);
+                                });
+                        });
+                        
+                        Promise.all(fetchPromises).then(() => {
+                            favoritePosts.forEach(item => {
+                                const row = tbody.insertRow();
+                                row.innerHTML = `
+                                    <td>${item.post.id}</td>
+                                    <td>${item.post.title}</td>
+                                    <td>${new Date(item.favorite.createdAt).toLocaleString()}</td>
+                                    <td>
+                                        <button class="btn btn-danger" onclick="removeFavorite(${item.favorite.id})">取消收藏</button>
+                                    </td>
+                                `;
+                            });
+                            
+                            showMessage('收藏数据加载完成', 'success');
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showMessage('加载收藏数据失败', 'error');
+                    });
+            }).catch(error => {
+                console.error('Error getting current user:', error);
+                showMessage('获取当前用户信息失败', 'error');
+            });
+        }
+        
+        // 取消收藏
+        function removeFavorite(favoriteId) {
+            if (confirm('确定要取消收藏这个帖子吗？')) {
+                fetch('/api/favorites/' + favoriteId, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showMessage('取消收藏成功', 'success');
+                        loadFavorites(); // 重新加载收藏列表
+                    } else {
+                        showMessage('取消收藏失败: ' + data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showMessage('取消收藏失败', 'error');
+                });
+            }
         }
 
         // 显示消息
@@ -1026,14 +1420,39 @@
                     saveUserEdit();
                 });
             }
+            
+            // 添加分类表单提交事件监听器
+            const addCategoryForm = document.getElementById('addCategoryForm');
+            if (addCategoryForm) {
+                addCategoryForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    addCategory();
+                });
+            }
+            
+            // 编辑分类表单提交事件监听器
+            const editCategoryForm = document.getElementById('editCategoryForm');
+            if (editCategoryForm) {
+                editCategoryForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    updateCategory();
+                });
+            }
         });
 
         // 点击模态框外部关闭模态框
         window.onclick = function(event) {
-            const modal = document.getElementById('editUserModal');
-            if (event.target == modal) {
-                modal.style.display = 'none';
-            }
+            const modals = [
+                document.getElementById('editUserModal'),
+                document.getElementById('addCategoryModal'),
+                document.getElementById('editCategoryModal')
+            ];
+            
+            modals.forEach(modal => {
+                if (modal && event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            });
         }
     </script>
 </body>

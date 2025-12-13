@@ -17,14 +17,14 @@ public interface CommentMapper {
     @Select("SELECT c.*, u.nickname AS userNickname, u.avatar AS userAvatar " +
            "FROM comments c " +
            "JOIN users u ON c.user_id = u.id " +
-           "WHERE c.post_id = #{postId} " +
+           "WHERE c.post_id = #{postId} AND c.status = 1 " +
            "ORDER BY c.created_at ASC")
     List<Comment> findByPostId(Long postId);
     
     @Select("SELECT c.*, u.nickname AS userNickname, u.avatar AS userAvatar " +
            "FROM comments c " +
            "JOIN users u ON c.user_id = u.id " +
-           "WHERE c.post_id = #{postId} " +
+           "WHERE c.post_id = #{postId} AND c.status = 1 " +
            "ORDER BY c.created_at ASC " +
            "LIMIT #{offset}, #{limit}")
     List<Comment> findByPostIdWithPagination(Long postId, int offset, int limit);
@@ -32,40 +32,48 @@ public interface CommentMapper {
     @Select("SELECT c.*, u.nickname AS userNickname, u.avatar AS userAvatar " +
            "FROM comments c " +
            "JOIN users u ON c.user_id = u.id " +
-           "WHERE c.parent_id = #{parentId} " +
+           "WHERE c.parent_id = #{parentId} AND c.status = 1 " +
            "ORDER BY c.created_at ASC")
     List<Comment> findByParentId(Long parentId);
     
     @Select("SELECT COUNT(*) " +
            "FROM comments c " +
-           "WHERE c.post_id = #{postId}")
+           "WHERE c.post_id = #{postId} AND c.status = 1")
     long countByPostId(Long postId);
     
     @Select("SELECT c.*, u.nickname AS userNickname, u.avatar AS userAvatar " +
            "FROM comments c " +
            "JOIN users u ON c.user_id = u.id " +
-           "WHERE c.user_id = #{userId} " +
+           "WHERE c.user_id = #{userId} AND c.status = 1 " +
            "ORDER BY c.created_at DESC")
     List<Comment> findByUserId(Long userId);
     
     @Select("SELECT c.*, u.nickname AS userNickname, u.avatar AS userAvatar " +
            "FROM comments c " +
            "JOIN users u ON c.user_id = u.id " +
-           "WHERE c.user_id = #{userId} " +
+           "WHERE c.user_id = #{userId} AND c.status = 1 " +
            "ORDER BY c.created_at DESC " +
            "LIMIT #{offset}, #{limit}")
     List<Comment> findByUserIdWithPagination(Long userId, int offset, int limit);
     
     @Select("SELECT COUNT(*) " +
            "FROM comments c " +
-           "WHERE c.user_id = #{userId}")
+           "WHERE c.user_id = #{userId} AND c.status = 1")
     long countByUserId(Long userId);
     
     @Select("SELECT c.*, u.nickname AS userNickname, u.avatar AS userAvatar " +
            "FROM comments c " +
            "JOIN users u ON c.user_id = u.id " +
+           "WHERE c.status = 1 " +
            "ORDER BY c.created_at DESC")
     List<Comment> findAll();
+    
+    @Select("SELECT c.*, u.nickname AS userNickname, u.avatar AS userAvatar " +
+           "FROM comments c " +
+           "JOIN users u ON c.user_id = u.id " +
+           "WHERE c.status = 1 AND c.content LIKE CONCAT('%',#{keyword},'%') " +
+           "ORDER BY c.created_at DESC")
+    List<Comment> searchByKeyword(@Param("keyword") String keyword);
     
     @Insert("INSERT INTO comments(post_id, user_id, content, parent_id, status) " +
             "VALUES(#{postId}, #{userId}, #{content}, #{parentId,jdbcType=BIGINT}, #{status})")
