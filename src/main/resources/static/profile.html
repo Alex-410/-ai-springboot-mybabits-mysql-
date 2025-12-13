@@ -9,8 +9,10 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-image: url('/uploads/rem.gif');
+            background-size: cover;
             background-attachment: fixed;
+            background-position: center;
             min-height: 100vh;
             color: white;
         }
@@ -22,8 +24,8 @@
             border-radius: 15px;
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: rgba(135, 206, 250, 0.5);
+            border: 1px solid rgba(135, 206, 250, 0.5);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
             transition: all 0.3s ease;
         }
@@ -65,8 +67,8 @@
             padding: 10px;
             border-radius: 8px;
             box-sizing: border-box;
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(135, 206, 250, 0.5);
+            border: 1px solid rgba(135, 206, 250, 0.5);
             backdrop-filter: blur(5px);
             -webkit-backdrop-filter: blur(5px);
             color: white;
@@ -208,7 +210,7 @@
             <div id="message" class="message hidden"></div>
             
             <div class="avatar-container">
-                <img id="avatarImg" class="avatar" src="/images/default-avatar.png" alt="头像">
+                <img id="avatarImg" class="avatar" src="/uploads/avatars/default.png" alt="头像">
                 <br>
                 <button id="changeAvatarBtn">更换头像</button>
                 <input type="file" id="avatarInput" accept="image/*" class="hidden">
