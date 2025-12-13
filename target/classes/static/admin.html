@@ -7,7 +7,10 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-image: url('/uploads/rem4.gif');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
             margin: 0;
             padding: 0;
             min-height: 100vh;
@@ -17,12 +20,14 @@
         }
 
         .login-container {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(10px);
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
             padding: 40px;
-            width: 400px;
+            width: 450px;
             text-align: center;
         }
 
@@ -31,14 +36,16 @@
         }
 
         .login-header h1 {
-            color: #333;
+            color: white;
             font-size: 28px;
             margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .login-header p {
-            color: #666;
+            color: rgba(255, 255, 255, 0.9);
             font-size: 16px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
 
         .form-group {
@@ -49,23 +56,32 @@
         .form-group label {
             display: block;
             margin-bottom: 8px;
-            color: #333;
+            color: white;
             font-weight: 500;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
 
         .form-group input {
             width: 100%;
             padding: 12px 15px;
-            border: 2px solid #e1e1e1;
+            border: 2px solid rgba(255, 255, 255, 0.3);
             border-radius: 8px;
             font-size: 16px;
             transition: border-color 0.3s ease;
             box-sizing: border-box;
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
         }
 
         .form-group input:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
         }
 
         .login-btn {
@@ -111,8 +127,9 @@
 
         .footer {
             margin-top: 20px;
-            color: #666;
+            color: rgba(255, 255, 255, 0.8);
             font-size: 14px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
     </style>
 </head>
