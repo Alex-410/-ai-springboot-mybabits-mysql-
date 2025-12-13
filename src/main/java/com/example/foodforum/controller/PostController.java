@@ -7,7 +7,9 @@ import com.example.foodforum.dto.PostWithUserDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -92,24 +94,32 @@ public class PostController {
     }
     
     @PutMapping("/{id}")
-    public String updatePost(@PathVariable Long id, @RequestBody Post post) {
+    public Map<String, Object> updatePost(@PathVariable Long id, @RequestBody Post post) {
+        Map<String, Object> result = new HashMap<>();
         post.setId(id);
-        int result = postService.update(post);
-        if (result > 0) {
-            return "帖子更新成功";
+        int updateResult = postService.update(post);
+        if (updateResult > 0) {
+            result.put("success", true);
+            result.put("message", "帖子更新成功");
         } else {
-            return "帖子更新失败";
+            result.put("success", false);
+            result.put("message", "帖子更新失败");
         }
+        return result;
     }
     
     @DeleteMapping("/{id}")
-    public String deletePost(@PathVariable Long id) {
-        int result = postService.deleteById(id);
-        if (result > 0) {
-            return "帖子删除成功";
+    public Map<String, Object> deletePost(@PathVariable Long id) {
+        Map<String, Object> result = new HashMap<>();
+        int deleteResult = postService.deleteById(id);
+        if (deleteResult > 0) {
+            result.put("success", true);
+            result.put("message", "帖子删除成功");
         } else {
-            return "帖子删除失败";
+            result.put("success", false);
+            result.put("message", "帖子删除失败");
         }
+        return result;
     }
     
     @PostMapping("/{id}/like")

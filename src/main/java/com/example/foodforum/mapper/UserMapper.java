@@ -25,7 +25,7 @@ public interface UserMapper {
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(User user);
     
-    @Update("UPDATE users SET username=#{username}, email=#{email}, nickname=#{nickname}, avatar=#{avatar}, " +
+    @Update("UPDATE users SET username=#{username}, email=#{email}, password=#{password}, nickname=#{nickname}, avatar=#{avatar}, " +
             "gender=#{gender}, birthday=#{birthday}, signature=#{signature}, phone=#{phone}, status=#{status}, updated_at=NOW() " +
             "WHERE id=#{id}")
     int update(User user);

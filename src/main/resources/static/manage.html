@@ -605,7 +605,7 @@
         <div class="modal-content">
             <span class="close" onclick="closeEditUserModal()">&times;</span>
             <h2>编辑用户</h2>
-            <form id="editUserForm">
+            <form id="editUserForm" onsubmit="saveUserEdit(); return false;">
                 <input type="hidden" id="editUserId">
                 <div class="form-group">
                     <label for="editUsername">用户名:</label>
@@ -632,6 +632,31 @@
                 </div>
                 <button type="submit" class="btn btn-primary">保存</button>
                 <button type="button" class="btn" onclick="closeEditUserModal()">取消</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 编辑帖子模态框 -->
+    <div id="editPostModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditPostModal()">&times;</span>
+            <h2>编辑帖子</h2>
+            <form id="editPostForm">
+                <input type="hidden" id="editPostId">
+                <div class="form-group">
+                    <label for="editPostTitle">标题:</label>
+                    <input type="text" id="editPostTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="editPostContent">内容:</label>
+                    <textarea id="editPostContent" rows="5" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editPostCategoryId">分类ID:</label>
+                    <input type="number" id="editPostCategoryId" required>
+                </div>
+                <button type="submit" class="btn btn-primary">保存</button>
+                <button type="button" class="btn" onclick="closeEditPostModal()">取消</button>
             </form>
         </div>
     </div>
@@ -1114,15 +1139,83 @@
 
         // 编辑帖子
         function editPost(postId) {
-            // 这里可以实现帖子编辑功能
-            alert('编辑帖子功能待实现，帖子ID: ' + postId);
+            // 获取帖子信息
+            fetch(`/api/posts/${postId}`)
+            .then(response => response.json())
+            .then(post => {
+                // 填充表单
+                document.getElementById('editPostId').value = post.id;
+                document.getElementById('editPostTitle').value = post.title;
+                document.getElementById('editPostContent').value = post.content;
+                document.getElementById('editPostCategoryId').value = post.categoryId;
+                // 显示模态框
+                document.getElementById('editPostModal').style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('获取帖子信息失败', 'error');
+            });
+        }
+
+        // 关闭编辑帖子模态框
+        function closeEditPostModal() {
+            document.getElementById('editPostModal').style.display = 'none';
+        }
+
+        // 保存帖子编辑
+        function savePostEdit() {
+            const postId = document.getElementById('editPostId').value;
+            const title = document.getElementById('editPostTitle').value.trim();
+            const content = document.getElementById('editPostContent').value.trim();
+            const categoryId = parseInt(document.getElementById('editPostCategoryId').value);
+            
+            if (!title || !content) {
+                showMessage('标题和内容不能为空', 'error');
+                return;
+            }
+            
+            fetch(`/api/posts/${postId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ title, content, categoryId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('帖子更新成功', 'success');
+                    closeEditPostModal();
+                    loadPosts();
+                } else {
+                    showMessage('帖子更新失败: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('帖子更新失败', 'error');
+            });
         }
 
         // 删除帖子
         function deletePost(postId) {
             if (confirm('确定要删除这个帖子吗？')) {
-                // 这里可以实现帖子删除功能
-                alert('删除帖子功能待实现，帖子ID: ' + postId);
+                fetch(`/api/posts/${postId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showMessage('帖子删除成功', 'success');
+                        loadPosts();
+                    } else {
+                        showMessage('帖子删除失败: ' + data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showMessage('帖子删除失败', 'error');
+                });
             }
         }
 
@@ -1155,8 +1248,8 @@
                         <td>${post.categoryId}</td>
                         <td>${new Date(post.createdAt).toLocaleString()}</td>
                         <td>
-                            <button class="btn btn-primary" onclick="editPost(${post.id})")>编辑</button>
-                            <button class="btn btn-danger" onclick="deletePost(${post.id})")>删除</button>
+                            <button class="btn btn-primary" onclick="editPost(${post.id})">编辑</button>
+                            <button class="btn btn-danger" onclick="deletePost(${post.id})">删除</button>
                         </td>
                     `;
                 });
@@ -1438,6 +1531,15 @@
                     updateCategory();
                 });
             }
+            
+            // 编辑帖子表单提交事件监听器
+            const editPostForm = document.getElementById('editPostForm');
+            if (editPostForm) {
+                editPostForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    savePostEdit();
+                });
+            }
         });
 
         // 点击模态框外部关闭模态框
@@ -1445,7 +1547,8 @@
             const modals = [
                 document.getElementById('editUserModal'),
                 document.getElementById('addCategoryModal'),
-                document.getElementById('editCategoryModal')
+                document.getElementById('editCategoryModal'),
+                document.getElementById('editPostModal')
             ];
             
             modals.forEach(modal => {
