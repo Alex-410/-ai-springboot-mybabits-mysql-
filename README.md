@@ -273,6 +273,8 @@ password: 123456
 - 3个角色：`USER`（普通用户）、`ADMIN`（管理员）、`MODERATOR`（版主）
 - 8个美食分类：家常菜谱、川菜系列、粤菜系列、湘菜系列、甜品系列、饮品系列、烘焙系列、异国料理
 - 1个管理员用户：用户名 `admin`，密码 `1234`
+- 1个普通用户：用户名 `123`，密码 `123`
+- 1个测试用户：用户名 `lvlinkun`，密码 `926953llk`
 
 ## 登录注册逻辑说明
 
@@ -341,6 +343,89 @@ password: 123456
 2. 后端检查Session中是否存在用户信息
 3. 后端返回登录状态和用户信息给前端
 4. 前端根据返回结果更新页面显示（如显示/隐藏登录按钮、显示用户头像等）
+
+## 权限分离说明
+
+### 1. 角色定义
+
+项目中实现了权限分离，主要分为两种角色：
+
+#### 普通用户（USER）
+- **默认角色**：所有新注册用户自动获得此角色
+- **登录方式**：通过普通登录表单登录
+- **权限范围**：
+  - 浏览帖子和分类
+  - 发布帖子和评论
+  - 点赞和收藏帖子
+  - 管理个人资料和头像
+
+#### 管理员（ADMIN）
+- **特殊角色**：拥有系统最高权限
+- **登录方式**：通过专门的管理员登录入口登录
+- **管理员账号说明**：
+  - 数据库初始管理员：用户名 `admin`，密码 `1234`（具有ADMIN角色）
+  - 系统硬编码管理员：用户名 `root`，密码 `926953llk`（用于直接管理员登录）
+- **权限范围**：
+  - 所有普通用户的权限
+  - 管理所有用户（查看、禁用/启用、删除用户）
+  - 管理所有帖子（查看、审核、删除帖子）
+  - 管理所有评论（查看、审核、删除评论）
+  - 管理分类（创建、编辑、删除分类）
+  - 管理上传文件
+
+### 2. 权限实现机制
+
+#### 后端权限检查
+- **文件路径**：`src/main/java/com/example/foodforum/controller/AdminController.java` 和 `src/main/java/com/example/foodforum/controller/AdminManagementController.java`
+- **实现方式**：
+  - 管理员登录后，在Session中设置 `isAdmin` 标志
+  - 所有管理员API接口都通过 `checkAdminPermission()` 方法检查权限
+  - 非管理员访问管理员API会返回 "未授权访问" 错误
+
+#### 前端权限控制
+- **实现方式**：
+  - 前端根据登录状态和用户角色显示不同的菜单和功能
+  - 管理员可以访问专门的管理页面
+  - 普通用户无法访问管理员功能
+
+### 3. 管理员功能
+
+#### 管理员登录
+- **API**：`POST /api/admin/login`
+- **功能**：验证管理员账号密码，设置管理员Session
+
+#### 管理员状态检查
+- **API**：`GET /api/admin/status`
+- **功能**：检查管理员是否已登录
+
+#### 用户管理
+- **API**：`GET /api/admin/manage/users`、`PUT /api/admin/manage/users/{userId}/status`、`DELETE /api/admin/manage/users/{userId}`
+- **功能**：查看所有用户、修改用户状态、删除用户
+
+#### 帖子管理
+- **API**：`GET /api/admin/manage/posts`、`PUT /api/admin/manage/posts/{postId}/status`、`DELETE /api/admin/manage/posts/{postId}`
+- **功能**：查看所有帖子、修改帖子状态、删除帖子
+
+#### 评论管理
+- **API**：`GET /api/admin/manage/comments`、`PUT /api/admin/manage/comments/{commentId}/status`、`DELETE /api/admin/manage/comments/{commentId}`
+- **功能**：查看所有评论、修改评论状态、删除评论
+
+#### 分类管理
+- **API**：`GET /api/admin/manage/categories`、`POST /api/admin/manage/categories`、`PUT /api/admin/manage/categories/{categoryId}`、`DELETE /api/admin/manage/categories/{categoryId}`
+- **功能**：查看所有分类、创建分类、修改分类、删除分类
+
+### 4. 权限分离的优势
+
+1. **安全性**：防止普通用户误操作或恶意操作系统
+2. **职责明确**：不同角色有不同的职责和权限
+3. **可扩展性**：便于后续添加更多角色和权限
+4. **管理效率**：管理员可以集中管理系统资源
+
+### 5. 注意事项
+
+- 管理员账号密码是系统默认配置，建议在生产环境中修改
+- 管理员操作具有高风险，建议谨慎使用
+- 所有管理员操作都应记录日志，便于审计
 
 ## 注意事项
 
