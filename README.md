@@ -35,17 +35,187 @@ AI协助开发显著提高了开发效率，确保了代码质量和项目的完
 ├── src/
 │   ├── main/
 │   │   ├── java/          # 后端Java代码
+│   │   │   └── com/example/foodforum/
+│   │   │       ├── controller/     # 后端API控制器（API编写位置）
+│   │   │       ├── service/         # 业务逻辑层
+│   │   │       ├── mapper/          # MyBatis映射层
+│   │   │       └── entity/          # 实体类
 │   │   ├── resources/     # 后端资源文件
 │   │   │   ├── static/    # 前端静态资源
 │   │   │   │   ├── src/   # Vue源代码
-│   │   │   │   ├── index.html    # 主页面
-│   │   │   │   └── other.html    # 其他页面
-│   │   │   └── application.yml   # 后端配置文件
+│   │   │   │   │   ├── views/       # Vue页面组件
+│   │   │   │   │   ├── router.js    # Vue路由配置
+│   │   │   │   │   └── main.js      # Vue入口文件
+│   │   │   │   ├── index.html       # 主页面
+│   │   │   │   └── other.html       # 其他页面
+│   │   │   └── application.yml      # 后端配置文件
 ├── uploads/               # 上传文件存储目录
 ├── package.json           # 前端依赖配置
-├── vite.config.js         # Vite配置文件
+├── vite.config.js         # Vite配置文件（前端代理配置）
 └── pom.xml                # Maven配置文件
 ```
+
+## 前后端分离实现
+
+### 1. 前后端分离架构
+
+本项目采用了前后端分离的架构设计，具体实现如下：
+
+#### 后端设计
+- **技术栈**：Spring Boot 2.7.0 + MyBatis + MySQL
+- **核心职责**：提供RESTful API接口，处理业务逻辑和数据持久化
+- **部署方式**：独立部署，作为API服务器运行
+
+#### 前端设计
+- **技术栈**：Vue 3 + Vue Router 4 + Vite 5
+- **核心职责**：实现用户界面，通过API调用与后端交互
+- **部署方式**：
+  - 开发模式：独立运行在Vite开发服务器上
+  - 生产模式：构建后作为静态资源部署在后端服务器或独立的静态资源服务器上
+
+### 2. 后端API接口说明
+
+#### API基础地址
+- **开发环境**：
+  - 后端服务地址：`http://localhost:8080`
+  - API基础路径：`http://localhost:8080/api`
+- **生产环境**：
+  - 根据实际部署情况，API地址为服务器域名或IP + `/api` 路径
+
+#### API编写位置
+- **文件路径**：`src/main/java/com/example/foodforum/controller/`
+- **主要控制器**：
+  - `AuthController.java` - 认证相关API（登录、注册、登出等）
+  - `PostController.java` - 帖子相关API（发布、查询、点赞等）
+  - `CommentController.java` - 评论相关API（发布、查询、删除等）
+  - `FavoriteController.java` - 收藏相关API（收藏、取消收藏等）
+  - `CategoryController.java` - 分类相关API（查询分类等）
+  - `AdminController.java` - 管理员登录API
+  - `AdminManagementController.java` - 管理员管理功能API
+
+#### API命名规范
+- 采用RESTful API设计风格
+- 使用HTTP方法区分操作类型：
+  - `GET` - 获取资源
+  - `POST` - 创建资源
+  - `PUT` - 更新资源
+  - `DELETE` - 删除资源
+- URL使用小写字母，单词之间用连字符（-）分隔
+- 资源名称使用复数形式
+
+### 3. 前端API调用方式
+
+#### 代理配置
+- **配置文件**：`vite.config.js`
+- **代理规则**：
+  ```javascript
+  server: {
+    port: 3000,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true
+      },
+      '/uploads': {
+        target: 'http://localhost:8080',
+        changeOrigin: true
+      }
+    }
+  }
+  ```
+
+#### 调用示例
+- **在Vue组件中调用API**：
+  ```javascript
+  // 获取帖子列表
+  fetch('/api/posts/page-with-user')
+    .then(response => response.json())
+    .then(data => {
+      // 处理返回数据
+    })
+    .catch(error => {
+      // 处理错误
+    });
+  
+  // 登录
+  fetch('/api/auth/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(loginForm),
+    credentials: 'same-origin'
+  })
+  .then(response => response.json())
+  .then(data => {
+    // 处理登录结果
+  });
+  ```
+
+### 4. 跨域处理
+
+#### 后端跨域配置
+- **配置文件**：`src/main/java/com/example/foodforum/config/CorsConfig.java`
+- **实现方式**：使用Spring Boot的CORS配置，允许所有来源访问
+
+#### 前端代理处理
+- **开发环境**：通过Vite代理配置，将API请求转发到后端服务器
+- **生产环境**：
+  - 方式一：前端静态资源部署在后端服务器上，通过相对路径调用API
+  - 方式二：使用Nginx等反向代理服务器，统一处理前端和后端请求
+
+### 5. 前后端数据交互格式
+
+- **数据格式**：JSON
+- **响应格式**：
+  ```json
+  {
+    "success": true,        // 操作是否成功
+    "message": "操作成功",   // 响应消息
+    "data": {}             // 响应数据（可选）
+  }
+  ```
+
+### 6. 前后端分离的优势
+
+1. **开发效率提升**：前后端开发可以并行进行，互不影响
+2. **技术栈灵活**：前后端可以使用各自最适合的技术栈
+3. **代码维护性好**：前后端代码分离，职责明确，便于维护和扩展
+4. **部署灵活**：可以独立部署，便于水平扩展
+5. **用户体验优化**：前端可以实现更流畅的交互效果
+
+### 7. 启动和访问方式
+
+#### 开发模式
+1. **启动后端服务**：
+   ```bash
+   mvn spring-boot:run
+   ```
+   - 后端服务地址：`http://localhost:8080`
+   - API访问地址：`http://localhost:8080/api/...`
+
+2. **启动前端开发服务器**：
+   ```bash
+   npm run dev
+   ```
+   - 前端访问地址：`http://localhost:3000`
+   - 前端通过代理访问后端API：`http://localhost:3000/api/...`
+
+#### 生产模式
+1. **构建前端资源**：
+   ```bash
+   npm run build
+   ```
+
+2. **启动后端服务**：
+   ```bash
+   mvn spring-boot:run
+   ```
+
+3. **访问应用**：
+   - 访问地址：`http://localhost:8080`
+   - 前端静态资源由后端服务器提供
+   - API访问地址：`http://localhost:8080/api/...`
 
 ## 环境准备
 
