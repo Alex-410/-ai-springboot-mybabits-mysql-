@@ -274,6 +274,74 @@ password: 123456
 - 8个美食分类：家常菜谱、川菜系列、粤菜系列、湘菜系列、甜品系列、饮品系列、烘焙系列、异国料理
 - 1个管理员用户：用户名 `admin`，密码 `1234`
 
+## 登录注册逻辑说明
+
+### 1. 前端登录注册文件
+
+#### Vue登录组件
+- **文件路径**：`src/main/resources/static/src/views/LoginView.vue`
+- **功能**：实现用户登录和注册表单，处理表单提交和API调用
+- **主要功能**：
+  - 登录表单：收集用户名和密码，调用登录API
+  - 注册表单：收集用户注册信息，进行表单验证，调用注册API
+  - 表单切换：在登录和注册表单之间切换
+  - 消息提示：显示登录/注册成功或失败的消息
+
+#### 前端路由配置
+- **文件路径**：`src/main/resources/static/src/router.js`
+- **功能**：配置登录页面路由，将 `/login`、`/login.html` 和 `/register.html` 映射到登录组件
+
+#### 静态登录页面
+- **文件路径**：`src/main/resources/static/login.html` 和 `src/main/resources/static/register.html`
+- **功能**：纯HTML版本的登录和注册页面，用于静态访问方式
+
+### 2. 后端登录注册文件
+
+#### 认证控制器
+- **文件路径**：`src/main/java/com/example/foodforum/controller/AuthController.java`
+- **功能**：处理所有认证相关的API请求
+- **主要接口**：
+  - `POST /api/auth/register` - 用户注册
+  - `POST /api/auth/login` - 用户登录
+  - `POST /api/auth/logout` - 用户登出
+  - `GET /api/auth/status` - 检查登录状态
+  - `POST /api/auth/upload-avatar` - 上传用户头像
+
+#### 用户服务
+- **文件路径**：`src/main/java/com/example/foodforum/service/UserService.java`
+- **功能**：提供用户相关的业务逻辑，包括用户注册、登录验证等
+
+#### 用户实体类
+- **文件路径**：`src/main/java/com/example/foodforum/entity/User.java`
+- **功能**：定义用户数据模型，包含用户名、密码、邮箱等字段
+
+### 3. 登录注册流程
+
+#### 注册流程
+1. 用户在前端填写注册表单（用户名、邮箱、密码、昵称等）
+2. 前端进行表单验证（如密码一致性检查）
+3. 前端发送POST请求到 `/api/auth/register`
+4. 后端AuthController接收请求，调用UserService进行用户名重复性检查
+5. UserService将新用户信息插入到数据库
+6. 后端返回注册结果给前端
+7. 前端显示注册成功或失败的消息
+
+#### 登录流程
+1. 用户在前端填写登录表单（用户名、密码）
+2. 前端发送POST请求到 `/api/auth/login`
+3. 后端AuthController接收请求，调用UserService根据用户名查找用户
+4. 后端验证密码是否正确
+5. 验证成功后，将用户信息保存到Session中
+6. 后端返回登录结果和用户信息给前端
+7. 前端显示登录成功或失败的消息
+8. 登录成功后，前端跳转到首页
+
+#### 登录状态检查
+1. 前端页面加载时，发送GET请求到 `/api/auth/status`
+2. 后端检查Session中是否存在用户信息
+3. 后端返回登录状态和用户信息给前端
+4. 前端根据返回结果更新页面显示（如显示/隐藏登录按钮、显示用户头像等）
+
 ## 注意事项
 
 1. **端口配置**
