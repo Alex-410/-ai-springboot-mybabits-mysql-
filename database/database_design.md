@@ -4,157 +4,188 @@
 存储用户基本信息
 
 ```sql
-CREATE TABLE users (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '用户ID',
-    username VARCHAR(50) NOT NULL UNIQUE COMMENT '用户名',
-    email VARCHAR(100) NOT NULL UNIQUE COMMENT '邮箱',
-    password VARCHAR(255) NOT NULL COMMENT '密码',
-    nickname VARCHAR(100) COMMENT '昵称',
-    avatar VARCHAR(255) COMMENT '头像URL',
-    gender TINYINT DEFAULT 0 COMMENT '性别：0未知，1男，2女',
-    birthday DATE COMMENT '生日',
-    signature VARCHAR(255) COMMENT '个性签名',
-    phone VARCHAR(20) COMMENT '手机号',
-    status TINYINT DEFAULT 1 COMMENT '状态：0禁用，1正常',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
-);
+CREATE TABLE `users` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT 'User ID',
+  `username` varchar(50) NOT NULL COMMENT 'Username',
+  `email` varchar(100) NOT NULL COMMENT 'Email',
+  `password` varchar(255) NOT NULL COMMENT 'Password',
+  `nickname` varchar(100) DEFAULT NULL COMMENT 'Nickname',
+  `avatar` varchar(255) DEFAULT NULL COMMENT 'Avatar URL',
+  `gender` tinyint DEFAULT '0' COMMENT 'Gender: 0-unknown, 1-male, 2-female',
+  `birthday` date DEFAULT NULL COMMENT 'Birthday',
+  `signature` varchar(255) DEFAULT NULL COMMENT 'Signature',
+  `phone` varchar(20) DEFAULT NULL COMMENT 'Phone',
+  `status` tinyint DEFAULT '1' COMMENT 'Status: 0-disabled, 1-active',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Created Time',
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Updated Time',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `username` (`username`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 ```
 
 ## 2. 角色表 (roles)
 定义系统角色
 
 ```sql
-CREATE TABLE roles (
-    id INT PRIMARY KEY AUTO_INCREMENT COMMENT '角色ID',
-    name VARCHAR(50) NOT NULL UNIQUE COMMENT '角色名称',
-    description VARCHAR(255) COMMENT '角色描述',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
-);
+CREATE TABLE `roles` (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT 'Role ID',
+  `name` varchar(50) NOT NULL COMMENT 'Role Name',
+  `description` varchar(255) DEFAULT NULL COMMENT 'Role Description',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Created Time',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 ```
 
 ## 3. 用户角色关联表 (user_roles)
 处理用户和角色的多对多关系
 
 ```sql
-CREATE TABLE user_roles (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
-    user_id BIGINT NOT NULL COMMENT '用户ID',
-    role_id INT NOT NULL COMMENT '角色ID',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '分配时间',
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE,
-    UNIQUE KEY uk_user_role (user_id, role_id)
-);
+CREATE TABLE `user_roles` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT 'Primary Key ID',
+  `user_id` bigint NOT NULL COMMENT 'User ID',
+  `role_id` int NOT NULL COMMENT 'Role ID',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Assigned Time',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_user_role` (`user_id`,`role_id`),
+  KEY `role_id` (`role_id`),
+  CONSTRAINT `user_roles_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `user_roles_ibfk_2` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 ```
 
 ## 4. 美食分类表 (categories)
 帖子分类信息
 
 ```sql
-CREATE TABLE categories (
-    id INT PRIMARY KEY AUTO_INCREMENT COMMENT '分类ID',
-    name VARCHAR(50) NOT NULL UNIQUE COMMENT '分类名称',
-    description VARCHAR(255) COMMENT '分类描述',
-    sort_order INT DEFAULT 0 COMMENT '排序',
-    status TINYINT DEFAULT 1 COMMENT '状态：0隐藏，1显示',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
-);
+CREATE TABLE `categories` (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT 'Category ID',
+  `name` varchar(50) NOT NULL COMMENT 'Category Name',
+  `description` varchar(255) DEFAULT NULL COMMENT 'Category Description',
+  `sort_order` int DEFAULT '0' COMMENT 'Sort Order',
+  `status` tinyint DEFAULT '1' COMMENT 'Status: 0-hidden, 1-visible',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Created Time',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 ```
 
 ## 5. 帖子表 (posts)
 存储用户发布的美食分享帖子
 
 ```sql
-CREATE TABLE posts (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '帖子ID',
-    user_id BIGINT NOT NULL COMMENT '发布用户ID',
-    category_id INT NOT NULL COMMENT '分类ID',
-    title VARCHAR(200) NOT NULL COMMENT '帖子标题',
-    content TEXT COMMENT '帖子内容',
-    images TEXT COMMENT '图片URL列表，JSON格式',
-    view_count INT DEFAULT 0 COMMENT '浏览次数',
-    like_count INT DEFAULT 0 COMMENT '点赞数',
-    comment_count INT DEFAULT 0 COMMENT '评论数',
-    is_top TINYINT DEFAULT 0 COMMENT '是否置顶：0否，1是',
-    is_essence TINYINT DEFAULT 0 COMMENT '是否精华：0否，1是',
-    status TINYINT DEFAULT 1 COMMENT '状态：0草稿，1已发布，2审核中，3已删除',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (category_id) REFERENCES categories(id)
-);
+CREATE TABLE `posts` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT 'Post ID',
+  `user_id` bigint NOT NULL COMMENT 'Author User ID',
+  `category_id` int NOT NULL COMMENT 'Category ID',
+  `title` varchar(200) NOT NULL COMMENT 'Post Title',
+  `content` text COMMENT 'Post Content',
+  `images` text COMMENT 'Image URLs (JSON format)',
+  `view_count` int DEFAULT '0' COMMENT 'View Count',
+  `like_count` int DEFAULT '0' COMMENT 'Like Count',
+  `comment_count` int DEFAULT '0' COMMENT 'Comment Count',
+  `favorite_count` int DEFAULT '0' COMMENT 'Favorite Count',
+  `is_top` tinyint DEFAULT '0' COMMENT 'Top Post: 0-no, 1-yes',
+  `is_essence` tinyint DEFAULT '0' COMMENT 'Essence Post: 0-no, 1-yes',
+  `status` tinyint DEFAULT '1' COMMENT 'Status: 0-draft, 1-published, 2-reviewing, 3-deleted',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Created Time',
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Updated Time',
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  KEY `category_id` (`category_id`),
+  CONSTRAINT `posts_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+  CONSTRAINT `posts_ibfk_2` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 ```
 
 ## 6. 评论表 (comments)
 存储用户对帖子的评论
 
 ```sql
-CREATE TABLE comments (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '评论ID',
-    post_id BIGINT NOT NULL COMMENT '帖子ID',
-    user_id BIGINT NOT NULL COMMENT '评论用户ID',
-    parent_id BIGINT DEFAULT 0 COMMENT '父评论ID，0表示一级评论',
-    reply_user_id BIGINT DEFAULT 0 COMMENT '被回复用户ID',
-    content TEXT NOT NULL COMMENT '评论内容',
-    like_count INT DEFAULT 0 COMMENT '点赞数',
-    status TINYINT DEFAULT 1 COMMENT '状态：0隐藏，1显示',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(id)
-);
+CREATE TABLE `comments` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT 'Comment ID',
+  `post_id` bigint NOT NULL COMMENT 'Post ID',
+  `user_id` bigint NOT NULL COMMENT 'Commenter User ID',
+  `parent_id` bigint DEFAULT '0' COMMENT 'Parent Comment ID (0 for top-level)',
+  `reply_user_id` bigint DEFAULT '0' COMMENT 'Replied User ID',
+  `content` text NOT NULL COMMENT 'Comment Content',
+  `like_count` int DEFAULT '0' COMMENT 'Like Count',
+  `status` tinyint DEFAULT '1' COMMENT 'Status: 0-hidden, 1-visible',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Created Time',
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Updated Time',
+  PRIMARY KEY (`id`),
+  KEY `post_id` (`post_id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `comments_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `comments_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 ```
 
 ## 7. 点赞表 (likes)
 记录用户点赞信息
 
 ```sql
-CREATE TABLE likes (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
-    user_id BIGINT NOT NULL COMMENT '用户ID',
-    likeable_type VARCHAR(20) NOT NULL COMMENT '点赞类型：post/comment',
-    likeable_id BIGINT NOT NULL COMMENT '点赞对象ID',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '点赞时间',
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    UNIQUE KEY uk_user_like (user_id, likeable_type, likeable_id)
-);
+CREATE TABLE `likes` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT 'Primary Key ID',
+  `user_id` bigint NOT NULL COMMENT 'User ID',
+  `likeable_type` varchar(20) NOT NULL COMMENT 'Like Type: post/comment',
+  `likeable_id` bigint NOT NULL COMMENT 'Liked Object ID',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Like Time',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_user_like` (`user_id`,`likeable_type`,`likeable_id`),
+  CONSTRAINT `likes_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 ```
 
 ## 8. 收藏表 (favorites)
 记录用户收藏的帖子
 
 ```sql
-CREATE TABLE favorites (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
-    user_id BIGINT NOT NULL COMMENT '用户ID',
-    post_id BIGINT NOT NULL COMMENT '帖子ID',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '收藏时间',
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
-    UNIQUE KEY uk_user_post (user_id, post_id)
-);
+CREATE TABLE `favorites` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT 'Primary Key ID',
+  `user_id` bigint NOT NULL COMMENT 'User ID',
+  `post_id` bigint NOT NULL COMMENT 'Post ID',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Favorite Time',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_user_post` (`user_id`,`post_id`),
+  KEY `post_id` (`post_id`),
+  CONSTRAINT `favorites_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `favorites_ibfk_2` FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 ```
 
 ## 初始化数据
 
 ### 角色初始化
 ```sql
-INSERT INTO roles (name, description) VALUES 
-('USER', '普通用户'),
-('ADMIN', '管理员'),
-('MODERATOR', '版主');
+INSERT INTO roles VALUES
+(1,'USER','Regular User','2025-12-02 09:40:55'),
+(2,'ADMIN','Administrator','2025-12-02 09:40:55'),
+(3,'MODERATOR','Moderator','2025-12-02 09:40:55');
 ```
 
 ### 分类初始化
 ```sql
-INSERT INTO categories (name, description) VALUES 
-('家常菜', '日常家庭菜肴'),
-('川菜', '四川特色菜系'),
-('粤菜', '广东特色菜系'),
-('湘菜', '湖南特色菜系'),
-('甜品', '各类甜点 dessert'),
-('饮品', '各类饮品制作'),
-('烘焙', '烘焙糕点类'),
-('异国料理', '各国特色美食');
+INSERT INTO categories VALUES
+(1,'家常菜谱','Daily home cooking recipes',0,1,'2025-12-02 09:40:55'),
+(2,'川菜系列','Sichuan specialty dishes',0,1,'2025-12-02 09:40:55'),
+(3,'粤菜系列','Cantonese specialty dishes',0,1,'2025-12-02 09:40:55'),
+(4,'湘菜系列','Hunan specialty dishes',0,1,'2025-12-02 09:40:55'),
+(5,'甜品系列','Various desserts',0,1,'2025-12-02 09:40:55'),
+(6,'饮品系列','Drink making tutorials',0,1,'2025-12-02 09:40:55'),
+(7,'烘焙系列','Baked goods and pastries',0,1,'2025-12-02 09:40:55'),
+(8,'异国料理','International specialties',0,1,'2025-12-02 09:40:55');
+```
+
+### 管理员用户初始化
+```sql
+INSERT INTO users VALUES
+(1,'admin','upda1111ed@example.com','1234','gold',NULL,NULL,NULL,NULL,NULL,1,'2025-12-02 09:40:55','2025-12-13 20:26:53');
+```
+
+### 用户角色关联初始化
+```sql
+INSERT INTO user_roles VALUES
+(1,1,2,'2025-12-02 09:40:55');
 ```

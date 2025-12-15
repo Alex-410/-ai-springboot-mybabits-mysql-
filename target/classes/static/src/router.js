@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import IndexView from './views/IndexView.vue'
+import LoginView from './views/LoginView.vue'
 
 // 定义路由配置
 const routes = [
@@ -12,6 +13,21 @@ const routes = [
     path: '/index.html',
     name: 'indexHtml',
     component: IndexView
+  },
+  {
+    path: '/login',
+    name: 'login',
+    component: LoginView
+  },
+  {
+    path: '/login.html',
+    name: 'loginHtml',
+    component: LoginView
+  },
+  {
+    path: '/register.html',
+    name: 'registerHtml',
+    component: LoginView
   }
 ]
 

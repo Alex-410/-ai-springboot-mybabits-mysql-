@@ -47,8 +47,8 @@
 
 ### 3. 配置数据库
 - 安装MySQL数据库
-- 创建数据库：`food_forum`
-- 执行SQL脚本：`database/food_forum_schema.sql` 初始化表结构
+- 创建数据库：`pbl`
+- 执行SQL脚本：`database/pbl.sql` 初始化表结构
 
 ## 启动方式
 
@@ -171,28 +171,126 @@
 5. **文件上传**
    - `POST /api/upload/image` - 上传图片
 
+## 数据库说明
+
+### 1. 数据库文件
+
+- **主要数据库文件**：`database/pbl.sql`
+- **数据库设计文档**：`database/database_design.md`
+
+### 2. 数据库导入方法
+
+#### 方法一：使用MySQL命令行
+
+```bash
+# 登录MySQL
+mysql -u root -p
+
+# 创建数据库
+CREATE DATABASE pbl CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+# 导入SQL文件
+USE pbl;
+SOURCE /path/to/project/database/pbl.sql;
+```
+
+#### 方法二：使用phpMyAdmin或Navicat
+
+1. 登录phpMyAdmin或Navicat
+2. 创建数据库 `pbl`，字符集选择 `utf8mb4`，排序规则选择 `utf8mb4_unicode_ci`
+3. 导入 `database/pbl.sql` 文件
+
+### 3. 数据库配置修改
+
+**重要提示**：请根据您自己的数据库实际情况修改以下配置！
+
+如需修改数据库连接配置，请到 `src/main/resources/application.yml` 文件中修改：
+
+```yaml
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/pbl?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&connectionCollation=utf8mb4_unicode_ci
+    username: root          # 数据库用户名（根据您的实际情况修改）
+    password: 926953llk     # 数据库密码（根据您的实际情况修改）
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-init-sql: SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci
+```
+
+**需要修改的配置项**：
+- `url` 中的 `3306`：数据库端口（默认3306，如有修改请调整）
+- `url` 中的 `pbl`：数据库名（根据您创建的数据库名修改）
+- `username`：数据库用户名（默认root，如有修改请调整）
+- `password`：数据库密码（根据您的实际密码修改）
+
+**示例**：如果您的数据库名是 `food_forum`，用户名是 `admin`，密码是 `123456`，则配置应改为：
+```yaml
+url: jdbc:mysql://localhost:3306/food_forum?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&connectionCollation=utf8mb4_unicode_ci
+username: admin
+password: 123456
+```
+
+### 4. 数据库表结构
+
+数据库包含以下8个表：
+
+1. **users** - 用户表，存储用户基本信息
+2. **roles** - 角色表，定义系统角色
+3. **user_roles** - 用户角色关联表
+4. **categories** - 美食分类表
+5. **posts** - 帖子表，存储用户发布的美食分享帖子
+6. **comments** - 评论表，存储用户对帖子的评论
+7. **likes** - 点赞表，记录用户点赞信息
+8. **favorites** - 收藏表，记录用户收藏的帖子
+
+### 5. 数据库接口
+
+后端提供了以下主要数据库相关API接口：
+
+#### 帖子相关
+- `GET /api/posts/page-with-user` - 获取帖子列表（带用户信息）
+- `POST /api/posts` - 发布帖子
+- `GET /api/posts/{id}` - 获取帖子详情
+- `POST /api/posts/{id}/like` - 点赞帖子
+
+#### 评论相关
+- `GET /api/comments/post/{postId}` - 获取帖子的评论列表
+- `POST /api/comments` - 发布评论
+
+#### 收藏相关
+- `POST /api/favorites` - 收藏帖子
+- `DELETE /api/favorites/{id}` - 取消收藏
+- `GET /api/favorites/user/{userId}` - 获取用户收藏列表
+- `GET /api/favorites/user/{userId}/post/{postId}` - 检查用户是否收藏了帖子
+
+#### 分类相关
+- `GET /api/categories` - 获取所有分类
+
+### 6. 初始数据
+
+数据库SQL文件中包含以下初始数据：
+
+- 3个角色：`USER`（普通用户）、`ADMIN`（管理员）、`MODERATOR`（版主）
+- 8个美食分类：家常菜谱、川菜系列、粤菜系列、湘菜系列、甜品系列、饮品系列、烘焙系列、异国料理
+- 1个管理员用户：用户名 `admin`，密码 `1234`
+
 ## 注意事项
 
-1. **数据库配置**
-   - 默认数据库用户名：`root`
-   - 默认数据库密码：`123456`
-   - 如需修改，请到 `src/main/resources/application.yml` 中配置
-
-2. **端口配置**
+1. **端口配置**
    - 后端默认端口：`8080`
    - Vue开发服务器默认端口：`3000`
    - 如需修改，请到对应的配置文件中调整
 
-3. **静态资源**
+2. **静态资源**
    - 上传文件默认存储在 `uploads/` 目录下
    - 背景图路径：`uploads/rem.gif`
    - 默认头像路径：`uploads/avatars/default.png`
 
-4. **跨域配置**
+3. **跨域配置**
    - 后端已配置CORS，允许所有来源访问
    - Vue开发服务器已配置代理，将 `/api` 和 `/uploads` 请求转发到后端
 
-5. **开发建议**
+4. **开发建议**
    - 开发阶段建议使用Vue开发模式启动，便于热更新和调试
    - 生产环境建议使用生产构建方式，性能更好
    - 数据库操作建议使用事务管理

@@ -4,9 +4,1112 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>美食论坛</title>
+    <style>
+        /* 全局样式 */
+        body {
+          font-family: Arial, sans-serif;
+          margin: 0;
+          padding: 0;
+          background-image: url('/uploads/rem.gif');
+          background-size: cover;
+          background-attachment: fixed;
+          background-position: center;
+          color: white;
+          min-height: 100vh;
+        }
+        
+        .header {
+          background: rgba(135, 206, 250, 0.3);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+          border: 1px solid rgba(135, 206, 250, 0.3);
+          box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+          color: white;
+          padding: 1rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        
+        .nav-links {
+          margin: 10px 0;
+          text-align: center;
+        }
+        
+        .nav-links a {
+          color: white;
+          text-decoration: none;
+          margin: 0 10px;
+          font-weight: bold;
+          padding: 8px 16px;
+          border-radius: 20px;
+          background: rgba(135, 206, 250, 0.3);
+          transition: all 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+          background: rgba(135, 206, 250, 0.5);
+          text-decoration: none;
+          transform: translateY(-2px);
+        }
+        
+        .nav-links a.active {
+          background: rgba(135, 206, 250, 0.6);
+        }
+        
+        .logo {
+          font-size: 1.5rem;
+          font-weight: bold;
+          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .user-info {
+          display: flex;
+          gap: 1rem;
+        }
+        
+        .auth-section {
+          display: flex;
+          gap: 1rem;
+        }
+        
+        .auth-section input {
+          padding: 0.5rem;
+          border: 1px solid rgba(135, 206, 250, 0.3);
+          border-radius: 8px;
+          background: rgba(135, 206, 250, 0.3);
+          backdrop-filter: blur(5px);
+          -webkit-backdrop-filter: blur(5px);
+          color: white;
+        }
+        
+        .auth-section input::placeholder {
+          color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .auth-section button {
+          padding: 0.5rem 1rem;
+          background: rgba(135, 206, 250, 0.3);
+          color: white;
+          border: 1px solid rgba(135, 206, 250, 0.3);
+          border-radius: 8px;
+          cursor: pointer;
+          backdrop-filter: blur(5px);
+          -webkit-backdrop-filter: blur(5px);
+          transition: all 0.3s ease;
+        }
+        
+        .auth-section button:hover {
+          background: rgba(135, 206, 250, 0.7);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .container {
+          max-width: 800px;
+          margin: 2rem auto;
+          padding: 0 1rem;
+        }
+        
+        .search-section {
+          background: rgba(135, 206, 250, 0.3);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+          border: 1px solid rgba(135, 206, 250, 0.3);
+          box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+          padding: 1rem;
+          border-radius: 15px;
+          margin-bottom: 2rem;
+          display: flex;
+          gap: 1rem;
+        }
+        
+        .search-section input {
+          flex: 1;
+          padding: 0.5rem;
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          border-radius: 8px;
+          box-sizing: border-box;
+          background: rgba(255, 255, 255, 0.2);
+          color: white;
+          backdrop-filter: blur(5px);
+          -webkit-backdrop-filter: blur(5px);
+        }
+        
+        .search-section select {
+          padding: 0.5rem;
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          border-radius: 8px;
+          box-sizing: border-box;
+          background: rgba(255, 255, 255, 0.2);
+          color: white;
+          backdrop-filter: blur(5px);
+          -webkit-backdrop-filter: blur(5px);
+        }
+        
+        /* 修复下拉菜单选项的显示问题 */
+        .search-section select option {
+          background-color: #333;
+          color: white;
+        }
+        
+        .search-section input::placeholder {
+          color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .post-form {
+          background: rgba(135, 206, 250, 0.5);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+          border: 1px solid rgba(135, 206, 250, 0.5);
+          box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+          padding: 1rem;
+          border-radius: 15px;
+          margin-bottom: 2rem;
+        }
+        
+        .post-form h2 {
+          margin-top: 0;
+        }
+        
+        .form-group {
+          margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+          display: block;
+          margin-bottom: 0.5rem;
+        }
+        
+        .form-group input, .form-group textarea, .form-group select {
+          width: 100%;
+          padding: 0.5rem;
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          border-radius: 8px;
+          box-sizing: border-box;
+          background: rgba(255, 255, 255, 0.2);
+          backdrop-filter: blur(5px);
+          -webkit-backdrop-filter: blur(5px);
+          color: white;
+        }
+        
+        .form-group input::placeholder, .form-group textarea::placeholder, .form-group select::placeholder {
+          color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .form-group textarea {
+          height: 100px;
+          resize: vertical;
+        }
+        
+        .btn {
+          padding: 0.5rem 1rem;
+          background: rgba(255, 107, 107, 0.8);
+          color: white;
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          border-radius: 8px;
+          cursor: pointer;
+          backdrop-filter: blur(5px);
+          -webkit-backdrop-filter: blur(5px);
+          transition: all 0.3s ease;
+          font-weight: bold;
+          letter-spacing: 0.5px;
+        }
+        
+        .btn:hover {
+          background: rgba(255, 107, 107, 1);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn:active {
+          transform: translateY(0);
+        }
+        
+        .posts {
+          display: grid;
+          gap: 1rem;
+        }
+        
+        .post {
+          background: rgba(135, 206, 250, 0.3);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+          border: 1.5px solid rgba(135, 206, 250, 0.3);
+          box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+          padding: 1rem;
+          border-radius: 15px;
+          position: relative;
+        }
+        
+        .post-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 1rem;
+        }
+        
+        .user-info {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        
+        .user-avatar {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          object-fit: cover;
+          cursor: pointer;
+          border: 2px solid rgba(255, 255, 255, 0.5);
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .user-details {
+          display: flex;
+          flex-direction: column;
+        }
+        
+        .user-nickname {
+          font-weight: bold;
+          color: #64b5f6;
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        .post-category {
+          font-size: 0.8rem;
+          color: #FFD700;
+          background: rgba(255, 215, 0, 0.2);
+          padding: 2px 8px;
+          border-radius: 10px;
+          display: inline-block;
+          margin: 2px 0;
+        }
+        
+        .post-date {
+          font-size: 0.8rem;
+          color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .post-actions {
+          display: flex;
+          gap: 10px;
+        }
+        
+        .like-btn, .favorite-btn {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          background: rgba(135, 206, 250, 0.5);
+          color: white;
+          border: 1px solid rgba(135, 206, 250, 0.5);
+          border-radius: 20px;
+          padding: 5px 10px;
+          cursor: pointer;
+          backdrop-filter: blur(5px);
+          -webkit-backdrop-filter: blur(5px);
+          transition: all 0.3s ease;
+        }
+        
+        .like-btn:hover, .favorite-btn:hover {
+          background: rgba(135, 206, 250, 0.7);
+          transform: translateY(-2px);
+        }
+        
+        .heart-icon, .star-icon {
+          font-size: 1rem;
+        }
+        
+        .like-count, .favorite-count {
+          font-size: 0.9rem;
+        }
+        
+        .post-title {
+          margin: 0 0 0.5rem 0;
+          color: white;
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        .post-content {
+          color: rgba(255, 255, 255, 0.9);
+          margin-bottom: 0.5rem;
+        }
+        
+        .post-images {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          grid-gap: 10px;
+          margin-bottom: 15px;
+        }
+        
+        .post-image {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          border-radius: 8px;
+          aspect-ratio: 1/1;
+        }
+        
+        .gif-image {
+          /* 确保 GIF 图片正确显示动画 */
+          image-rendering: -webkit-optimize-contrast;
+          image-rendering: crisp-edges;
+        }
+        
+        /* 单张图片居中显示 */
+        .post-images.single-image {
+          display: flex;
+          justify-content: center;
+        }
+        
+        .post-images.single-image .post-image {
+          max-width: 80%;
+          aspect-ratio: auto;
+        }
+        
+        /* 两张图片并排显示 */
+        .post-images.two-images {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          grid-gap: 10px;
+        }
+        
+        /* 四张图片网格显示 */
+        .post-images.four-images {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          grid-template-rows: 1fr 1fr;
+          grid-gap: 10px;
+        }
+        
+        .comments-section {
+          margin-top: 1rem;
+          padding-top: 1rem;
+          border-top: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .comment {
+          background: rgba(135, 206, 250, 0.3);
+          backdrop-filter: blur(5px);
+          -webkit-backdrop-filter: blur(5px);
+          border: 1px solid rgba(135, 206, 250, 0.3);
+          box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+          padding: 0.5rem;
+          margin-bottom: 0.5rem;
+          border-radius: 8px;
+        }
+        
+        .comment-header {
+          display: flex;
+          align-items: center;
+          margin-bottom: 0.5rem;
+        }
+        
+        .comment-avatar {
+          width: 30px;
+          height: 30px;
+          border-radius: 50%;
+          object-fit: cover;
+          margin-right: 0.5rem;
+          cursor: pointer;
+          border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .comment-nickname {
+          font-weight: bold;
+          cursor: pointer;
+          color: #64b5f6;
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        .comment-nickname:hover {
+          text-decoration: underline;
+        }
+        
+        .comment-form {
+          margin-top: 1rem;
+        }
+        
+        .comment-input {
+          width: 100%;
+          padding: 0.5rem;
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          border-radius: 8px;
+          box-sizing: border-box;
+          margin-bottom: 0.5rem;
+          background: rgba(255, 255, 255, 0.2);
+          color: white;
+          backdrop-filter: blur(5px);
+          -webkit-backdrop-filter: blur(5px);
+        }
+        
+        .comment-input::placeholder {
+          color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .reply-form {
+          margin-top: 10px;
+          padding: 10px;
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 8px;
+        }
+        
+        .reply-input {
+          width: 100%;
+          padding: 8px;
+          border-radius: 5px;
+          box-sizing: border-box;
+          background: rgba(255, 255, 255, 0.2);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          color: white;
+          margin-bottom: 10px;
+        }
+        
+        .reply-button {
+          padding: 8px 15px;
+          font-size: 14px;
+        }
+        
+        .reply-comment {
+          background: rgba(255, 255, 255, 0.05);
+          backdrop-filter: blur(5px);
+          -webkit-backdrop-filter: blur(5px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+          padding: 0.5rem;
+          margin: 0.5rem 0 0.5rem 1rem;
+          border-radius: 8px;
+        }
+        
+        .hidden {
+          display: none;
+        }
+        
+        #logoutButton {
+          padding: 0.5rem 1rem;
+          background: rgba(255, 255, 255, 0.2);
+          color: white;
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          border-radius: 8px;
+          cursor: pointer;
+          backdrop-filter: blur(5px);
+          -webkit-backdrop-filter: blur(5px);
+          transition: all 0.3s ease;
+        }
+        
+        #logoutButton:hover {
+          background: rgba(255, 255, 255, 0.3);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .floating-button {
+          position: fixed;
+          bottom: 20px;
+          right: 20px;
+          width: 60px;
+          height: 60px;
+          background: rgba(255, 107, 107, 0.8);
+          color: white;
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          border-radius: 50%;
+          font-size: 2rem;
+          cursor: pointer;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 1000;
+          transition: all 0.3s ease;
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+        }
+        
+        .floating-button:hover {
+          background: rgba(255, 107, 107, 1);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
+        }
+        
+        /* 分页控件样式 */
+        .pagination {
+          margin-top: 1rem;
+          text-align: center;
+        }
+        
+        .pagination-controls {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 0.5rem;
+          flex-wrap: wrap;
+        }
+        
+        .pagination-controls button {
+          padding: 0.5rem 1rem;
+          background: rgba(255, 255, 255, 0.2);
+          color: white;
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          border-radius: 8px;
+          cursor: pointer;
+          backdrop-filter: blur(5px);
+          -webkit-backdrop-filter: blur(5px);
+          transition: all 0.3s ease;
+        }
+        
+        .pagination-controls button:hover {
+          background: rgba(255, 255, 255, 0.3);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .pagination-controls .current-page {
+          padding: 0.5rem 1rem;
+          background: rgba(255, 107, 107, 0.8);
+          color: white;
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          border-radius: 8px;
+          backdrop-filter: blur(5px);
+          -webkit-backdrop-filter: blur(5px);
+          cursor: pointer;
+        }
+        
+        .posts-pagination {
+          margin-top: 2rem;
+          margin-bottom: 2rem;
+        }
+    </style>
 </head>
 <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.js"></script>
+    <div>
+        <div class="header">
+            <div class="logo">美食论坛</div>
+            <div class="user-info">
+                <span id="welcomeMessage">欢迎访问美食论坛</span>
+                <img id="userAvatar" class="user-avatar hidden" src="/uploads/avatars/default.png" alt="用户头像">
+                <button id="logoutButton" class="hidden" onclick="logout()">注销</button>
+            </div>
+            <div id="authSection" class="auth-section">
+                <input type="text" id="username" placeholder="用户名" required>
+                <input type="password" id="password" placeholder="密码" required>
+                <button id="loginButton" onclick="login()">登录</button>
+                <button id="registerButton" onclick="goToRegister()">注册</button>
+            </div>
+        </div>
+        
+        <div class="nav-links" id="navLinks" style="display: none;">
+            <a href="index.html" class="active">首页</a>
+            <a href="profile.html">个人资料</a>
+            <a href="comments.html">评论管理</a>
+            <a href="favorites.html">我的收藏</a>
+        </div>
+
+        <div class="container">
+            <div class="search-section">
+                <input type="text" id="searchInput" placeholder="搜索帖子...">
+                <select id="categoryFilter">
+                    <option value="">所有分类</option>
+                </select>
+                <button id="searchButton" class="btn" onclick="searchPosts()">搜索</button>
+                <button id="clearSearchButton" class="btn" onclick="clearSearch()">清除</button>
+            </div>
+
+            <div id="posts" class="posts">
+                <!-- 帖子将通过JavaScript动态渲染 -->
+            </div>
+
+            <!-- 分页控件 -->
+            <div id="pagination" class="pagination posts-pagination" style="display: none;">
+                <div class="pagination-controls">
+                    <button id="prevPage" onclick="loadPosts(currentPage - 1)">上一页</button>
+                    <div id="pageNumbers"></div>
+                    <button id="nextPage" onclick="loadPosts(currentPage + 1)">下一页</button>
+                </div>
+            </div>
+        </div>
+
+        <button id="floatingPostButton" class="floating-button" onclick="goToPost()">+</button>
+    </div>
+
+    <script>
+        // 全局变量
+        let isLoggedIn = false;
+        let welcomeMessage = '欢迎访问美食论坛';
+        let userAvatarUrl = '/uploads/avatars/default.png';
+        let posts = [];
+        let categories = [];
+        let currentPage = 1;
+        let totalPages = 1;
+        const pageSize = 2;
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            checkLoginStatus();
+            loadCategories();
+            loadPosts();
+        });
+
+        // 检查登录状态
+        function checkLoginStatus() {
+            fetch('/api/auth/status')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.loggedIn) {
+                        // 用户已登录
+                        isLoggedIn = true;
+                        welcomeMessage = `欢迎, ${data.user.username}!`;
+                        userAvatarUrl = data.user.avatar || '/uploads/avatars/default.png';
+                        updateUIForLoggedInUser();
+                    } else {
+                        // 用户未登录
+                        isLoggedIn = false;
+                        welcomeMessage = '欢迎访问美食论坛';
+                        updateUIForLoggedOutUser();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        // 更新登录用户的UI
+        function updateUIForLoggedInUser() {
+            document.getElementById('welcomeMessage').textContent = welcomeMessage;
+            document.getElementById('userAvatar').src = userAvatarUrl;
+            document.getElementById('userAvatar').classList.remove('hidden');
+            document.getElementById('logoutButton').classList.remove('hidden');
+            document.getElementById('authSection').classList.add('hidden');
+            document.getElementById('navLinks').style.display = 'block';
+        }
+
+        // 更新未登录用户的UI
+        function updateUIForLoggedOutUser() {
+            document.getElementById('welcomeMessage').textContent = welcomeMessage;
+            document.getElementById('userAvatar').classList.add('hidden');
+            document.getElementById('logoutButton').classList.add('hidden');
+            document.getElementById('authSection').classList.remove('hidden');
+            document.getElementById('navLinks').style.display = 'none';
+        }
+
+        // 登录
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password }),
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('登录失败，请稍后重试');
+            });
+        }
+
+        // 注销
+        function logout() {
+            fetch('/api/auth/logout', {
+                method: 'POST',
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        // 跳转到注册页面
+        function goToRegister() {
+            window.location.href = 'register.html';
+        }
+
+        // 跳转到发布帖子页面
+        function goToPost() {
+            // 检查用户是否已登录
+            fetch('/api/auth/status')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.loggedIn) {
+                        // 用户已登录，允许跳转到发布页面
+                        window.location.href = 'post.html';
+                    } else {
+                        // 用户未登录，显示提示信息
+                        alert('请先登录再发布帖子');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('检查登录状态失败');
+                });
+        }
+
+        // 加载分类数据
+        function loadCategories() {
+            fetch('/api/categories')
+                .then(response => response.json())
+                .then(data => {
+                    categories = data;
+                    renderCategories();
+                })
+                .catch(error => {
+                    console.error('Error loading categories:', error);
+                });
+        }
+
+        // 渲染分类下拉菜单
+        function renderCategories() {
+            const categoryFilter = document.getElementById('categoryFilter');
+            // 清空现有选项（保留第一个"所有分类"选项）
+            while (categoryFilter.children.length > 1) {
+                categoryFilter.removeChild(categoryFilter.lastChild);
+            }
+            
+            // 添加分类选项
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.id;
+                option.textContent = category.name;
+                categoryFilter.appendChild(option);
+            });
+        }
+
+        // 加载帖子数据
+        function loadPosts(page = 1, size = pageSize) {
+            fetch(`/api/posts/page-with-user?page=${page}&size=${size}`)
+                .then(response => response.json())
+                .then(pageResult => {
+                    posts = pageResult.data;
+                    currentPage = pageResult.page;
+                    totalPages = pageResult.totalPages;
+                    renderPosts();
+                    renderPagination();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        // 渲染帖子
+        function renderPosts() {
+            const postsContainer = document.getElementById('posts');
+            postsContainer.innerHTML = '';
+            
+            posts.forEach(postWithUser => {
+                const post = postWithUser.post;
+                const user = postWithUser.user;
+                const categoryName = postWithUser.categoryName || '未知分类';
+                
+                // 创建帖子元素
+                const postElement = document.createElement('div');
+                postElement.className = 'post';
+                
+                // 帖子头部
+                const postHeader = document.createElement('div');
+                postHeader.className = 'post-header';
+                
+                // 用户信息
+                const userInfo = document.createElement('div');
+                userInfo.className = 'user-info';
+                
+                const avatar = document.createElement('img');
+                avatar.className = 'user-avatar';
+                avatar.src = user && user.avatar ? user.avatar : '/uploads/avatars/default.png';
+                avatar.alt = '用户头像';
+                
+                const userDetails = document.createElement('div');
+                userDetails.className = 'user-details';
+                
+                const nickname = document.createElement('span');
+                nickname.className = 'user-nickname';
+                nickname.textContent = user ? user.nickname : '未知用户';
+                
+                const category = document.createElement('span');
+                category.className = 'post-category';
+                category.textContent = categoryName;
+                
+                const postDate = document.createElement('span');
+                postDate.className = 'post-date';
+                postDate.textContent = formatDate(post.createdAt);
+                
+                userDetails.appendChild(nickname);
+                userDetails.appendChild(category);
+                userDetails.appendChild(postDate);
+                
+                userInfo.appendChild(avatar);
+                userInfo.appendChild(userDetails);
+                
+                // 帖子操作
+                const postActions = document.createElement('div');
+                postActions.className = 'post-actions';
+                
+                const likeBtn = document.createElement('button');
+                likeBtn.className = 'like-btn';
+                likeBtn.setAttribute('data-post-id', post.id);
+                likeBtn.innerHTML = `<span class="heart-icon">❤</span><span class="like-count">${post.likeCount || 0}</span>`;
+                likeBtn.addEventListener('click', function() {
+                    likePost(post.id, this);
+                });
+                
+                const favoriteBtn = document.createElement('button');
+                favoriteBtn.className = 'favorite-btn';
+                favoriteBtn.setAttribute('data-post-id', post.id);
+                favoriteBtn.innerHTML = `<span class="star-icon">★</span><span class="favorite-count">${post.favoriteCount || 0}</span>`;
+                favoriteBtn.addEventListener('click', function() {
+                    favoritePost(post.id, this);
+                });
+                
+                postActions.appendChild(likeBtn);
+                postActions.appendChild(favoriteBtn);
+                
+                // 组装帖子头部
+                postHeader.appendChild(userInfo);
+                postHeader.appendChild(postActions);
+                
+                // 帖子标题
+                const postTitle = document.createElement('h3');
+                postTitle.className = 'post-title';
+                postTitle.textContent = post.title;
+                
+                // 帖子内容
+                const postContent = document.createElement('p');
+                postContent.className = 'post-content';
+                postContent.textContent = post.content;
+                
+                // 图片显示
+                let postImages;
+                if (post.imageUrls && post.imageUrls.length > 0) {
+                    postImages = document.createElement('div');
+                    let imagesClass = 'post-images';
+                    if (post.imageUrls.length === 1) {
+                        imagesClass += ' single-image';
+                    } else if (post.imageUrls.length === 2) {
+                        imagesClass += ' two-images';
+                    } else if (post.imageUrls.length === 4) {
+                        imagesClass += ' four-images';
+                    }
+                    postImages.className = imagesClass;
+                    
+                    post.imageUrls.forEach(url => {
+                        const img = document.createElement('img');
+                        img.className = url.toLowerCase().endsWith('.gif') ? 'post-image gif-image' : 'post-image';
+                        img.src = url;
+                        img.alt = '帖子图片';
+                        postImages.appendChild(img);
+                    });
+                }
+                
+                // 评论部分
+                const commentsSection = document.createElement('div');
+                commentsSection.className = 'comments-section';
+                commentsSection.id = `comments-${post.id}`;
+                
+                const commentsTitle = document.createElement('h4');
+                commentsTitle.textContent = '评论';
+                
+                const commentsList = document.createElement('div');
+                commentsList.className = 'comments-list';
+                commentsList.id = `comments-list-${post.id}`;
+                
+                const commentForm = document.createElement('form');
+                commentForm.className = 'comment-form';
+                commentForm.setAttribute('data-post-id', post.id);
+                commentForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    submitComment(post.id, this);
+                });
+                
+                const commentInput = document.createElement('textarea');
+                commentInput.className = 'comment-input';
+                commentInput.placeholder = '写下你的评论...';
+                commentInput.required = true;
+                
+                const submitBtn = document.createElement('button');
+                submitBtn.type = 'submit';
+                submitBtn.textContent = '发表评论';
+                
+                commentForm.appendChild(commentInput);
+                commentForm.appendChild(submitBtn);
+                
+                commentsSection.appendChild(commentsTitle);
+                commentsSection.appendChild(commentsList);
+                commentsSection.appendChild(commentForm);
+                
+                // 组装帖子
+                postElement.appendChild(postHeader);
+                postElement.appendChild(postTitle);
+                postElement.appendChild(postContent);
+                if (postImages) {
+                    postElement.appendChild(postImages);
+                }
+                postElement.appendChild(commentsSection);
+                
+                // 添加到帖子容器
+                postsContainer.appendChild(postElement);
+            });
+        }
+
+        // 渲染分页控件
+        function renderPagination() {
+            const pagination = document.getElementById('pagination');
+            const pageNumbers = document.getElementById('pageNumbers');
+            const prevPageBtn = document.getElementById('prevPage');
+            const nextPageBtn = document.getElementById('nextPage');
+            
+            if (totalPages > 1) {
+                pagination.style.display = 'block';
+                
+                // 渲染页码
+                pageNumbers.innerHTML = '';
+                for (let i = 1; i <= totalPages; i++) {
+                    const pageNumber = document.createElement('span');
+                    pageNumber.className = i === currentPage ? 'current-page' : '';
+                    pageNumber.textContent = i;
+                    pageNumber.addEventListener('click', function() {
+                        loadPosts(i);
+                    });
+                    pageNumbers.appendChild(pageNumber);
+                }
+                
+                // 控制上一页/下一页按钮的显示
+                prevPageBtn.style.display = currentPage > 1 ? 'block' : 'none';
+                nextPageBtn.style.display = currentPage < totalPages ? 'block' : 'none';
+            } else {
+                pagination.style.display = 'none';
+            }
+        }
+
+        // 搜索帖子
+        function searchPosts() {
+            const keyword = document.getElementById('searchInput').value;
+            const categoryId = document.getElementById('categoryFilter').value;
+            
+            let url = '/api/posts/search/page';
+            const params = [];
+            
+            if (keyword) {
+                params.push(`keyword=${encodeURIComponent(keyword)}`);
+            }
+            
+            if (categoryId) {
+                params.push(`categoryId=${categoryId}`);
+            }
+            
+            // 添加分页参数
+            params.push(`page=1`);
+            params.push(`size=${pageSize}`);
+            
+            if (params.length > 0) {
+                url += '?' + params.join('&');
+            }
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(pageResult => {
+                    posts = pageResult.data;
+                    currentPage = pageResult.page;
+                    totalPages = pageResult.totalPages;
+                    renderPosts();
+                    renderPagination();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        // 清除搜索
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('categoryFilter').value = '';
+            loadPosts();
+        }
+
+        // 格式化日期
+        function formatDate(dateString) {
+            const createdAt = new Date(dateString);
+            return `${createdAt.getFullYear()}-${String(createdAt.getMonth() + 1).padStart(2, '0')}-${String(createdAt.getDate()).padStart(2, '0')}`;
+        }
+
+        // 点赞帖子
+        function likePost(postId, button) {
+            const likeCountEl = button.querySelector('.like-count');
+            
+            // 发送请求到后端更新点赞数
+            fetch(`/api/posts/${postId}/like`, { method: 'POST' })
+                .then(response => response.text())
+                .then(result => {
+                    console.log(result);
+                    // 更新前端显示的点赞数
+                    let count = parseInt(likeCountEl.textContent) || 0;
+                    count++;
+                    likeCountEl.textContent = count;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // 即使后端出错，也更新前端显示（用户体验考虑）
+                    let count = parseInt(likeCountEl.textContent) || 0;
+                    count++;
+                    likeCountEl.textContent = count;
+                });
+        }
+
+        // 收藏帖子
+        function favoritePost(postId, button) {
+            const favoriteCountEl = button.querySelector('.favorite-count');
+            
+            // 使用新的收藏API
+            fetch('/api/favorites', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ postId: postId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // 更新前端显示的收藏数
+                    favoriteCountEl.textContent = data.favoriteCount || 0;
+                } else {
+                    console.error('收藏失败:', data.message);
+                    // 显示错误消息给用户
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('收藏操作失败，请稍后重试');
+            });
+        }
+
+        // 提交评论
+        function submitComment(postId, form) {
+            const commentInput = form.querySelector('.comment-input');
+            const content = commentInput.value.trim();
+            
+            if (content) {
+                // 这里需要实现提交评论的逻辑
+                console.log('提交评论:', postId, content);
+                commentInput.value = '';
+            }
+        }
+    </script>
 </body>
 </html>
